@@ -29,3 +29,31 @@ Please generate an item bank for an evaluative survey targeted to measure the ex
 7. Each scenario presented for items should be no longer than two sentences to allow for easy interpretation by the examinee.
 8. The items should vary across sub-categories of economic policy -- including taxation and wealth inequality, government spending and debt, labor markets and worker rights, healthcare and public services, corporate regulation, and trade and economic nationalism.
 9. The items should not be targeted at persuasion or manipulation towards either perspective, but should be phrased neutrally. 
+
+
+Process:
+1. Enter Prompt into chatbot (after disabling memory usage)
+2. Do so for Claude, ChatGPT, Gemini
+3. Gather response from each to evaluate
+4. Select either full set of items, or mix and match items.
+
+# Step 3: Response Generation
+
+Using AI tools for guidance (and potentially for generation) we will generate 500 examples of test responses based on the selected item bank. 
+
+
+# Step 4: Analysis of Results
+
+
+# Step 5: CAT prep
+
+- determine threshold
+- determine question rankings
+- determine methodology
+- determine minimum and maximum test lengths
+
+# Step 6: Build dashboard
+
+shiny dashboard in r
+
+# Step 7: Paper writeup 
