@@ -1,0 +1,31 @@
+"item_id","item_name","category","disc_label","a_true","b_true","a_est","b_est","a_bias","b_bias","a_abias","b_abias"
+1,"Tax bracket >$1M","Taxation & Wealth Inequality","High",2,-1.2,1.831,-1.289,-0.169,-0.089,0.169,0.089
+2,"Road repair funding","Taxation & Wealth Inequality","Moderate",1.2,0.1,1.277,0.16,0.077,0.06,0.077,0.06
+3,"Estate/inheritance tax","Taxation & Wealth Inequality","High",2.2,-1.5,1.94,-1.617,-0.26,-0.117,0.26,0.117
+4,"Income vs. sales tax","Taxation & Wealth Inequality","Low",0.6,0.2,0.487,0.189,-0.113,-0.011,0.113,0.011
+5,"Wealth tax","Taxation & Wealth Inequality","Moderate",1.1,-0.8,1.09,-0.837,-0.01,-0.037,0.01,0.037
+6,"Deficit spending","Government Spending & Debt","High",2.1,0.3,1.996,0.224,-0.104,-0.076,0.104,0.076
+7,"Recession stimulus","Government Spending & Debt","Low",0.5,0,0.476,-0.108,-0.024,-0.108,0.024,0.108
+8,"Public transit funding","Government Spending & Debt","Moderate",1,0.2,0.936,0.169,-0.064,-0.031,0.064,0.031
+9,"Defense vs. social cuts","Government Spending & Debt","Moderate",1,0.1,0.974,0.104,-0.026,0.004,0.026,0.004
+10,"Housing subsidies","Government Spending & Debt","Low",0.6,0.3,0.539,0.38,-0.061,0.08,0.061,0.08
+11,"Minimum wage increase","Labor Markets & Worker Rights","High",2.3,-1,2.041,-0.986,-0.259,0.014,0.259,0.014
+12,"Union organizing rights","Labor Markets & Worker Rights","Moderate",1.3,-0.5,1.246,-0.695,-0.054,-0.195,0.054,0.195
+13,"Paid family leave mandate","Labor Markets & Worker Rights","Low",0.5,0.3,0.478,0.334,-0.022,0.034,0.022,0.034
+14,"Right-to-work laws","Labor Markets & Worker Rights","Moderate",1.1,-0.2,1.064,-0.125,-0.036,0.075,0.036,0.075
+15,"Executive pay ratios","Labor Markets & Worker Rights","High",1.8,-0.7,1.73,-0.716,-0.07,-0.016,0.07,0.016
+16,"Single-payer healthcare","Healthcare & Public Services","High",2.4,-1.4,2.31,-1.52,-0.09,-0.12,0.09,0.12
+17,"Drug price negotiation","Healthcare & Public Services","Moderate",1.2,-0.4,1.068,-0.491,-0.132,-0.091,0.132,0.091
+18,"Free public college","Healthcare & Public Services","Moderate",1.1,-0.3,1.132,-0.336,0.032,-0.036,0.032,0.036
+19,"Rural broadband access","Healthcare & Public Services","Low",0.5,0.2,0.4,0.457,-0.1,0.257,0.1,0.257
+20,"Public library expansion","Healthcare & Public Services","Low",0.4,0.4,0.16,0.807,-0.24,0.407,0.24,0.407
+21,"Big tech regulation","Corporate Regulation","High",1.9,-0.6,1.791,-0.651,-0.109,-0.051,0.109,0.051
+22,"Worker board representation","Corporate Regulation","Moderate",1.1,0,1.094,-0.168,-0.006,-0.168,0.006,0.168
+23,"Environmental regulations","Corporate Regulation","Moderate",1,0.3,0.999,0.307,-0.001,0.007,0.001,0.007
+24,"Corporate disclosure","Corporate Regulation","Low",0.6,0.5,0.472,0.718,-0.128,0.218,0.128,0.218
+25,"Financial institution rules","Corporate Regulation","High",2,-0.5,1.781,-0.668,-0.219,-0.168,0.219,0.168
+26,"Tariffs on imports","Trade & Economic Nationalism","High",1.8,0.5,2.199,0.46,0.399,-0.04,0.399,0.04
+27,"Trade agreement conditions","Trade & Economic Nationalism","Moderate",1.2,0.3,1.133,0.317,-0.067,0.017,0.067,0.017
+28,"Foreign acquisition review","Trade & Economic Nationalism","Moderate",1,0.4,1.013,0.551,0.013,0.151,0.013,0.151
+29,"Buy American requirement","Trade & Economic Nationalism","Low",0.6,0.6,0.332,0.771,-0.268,0.171,0.268,0.171
+30,"Trade-displaced worker aid","Trade & Economic Nationalism","Low",0.5,0.2,0.745,0.033,0.245,-0.167,0.245,0.167

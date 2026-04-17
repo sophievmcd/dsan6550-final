@@ -52,6 +52,8 @@ Using AI tools for guidance (and potentially for generation) we will generate 50
 - determine methodology
 - determine minimum and maximum test lengths
 
+Based on current ability estimation we decide the b parameter of next item, we select the next item that maximizes information so based on the same b range of questions, highest a (we choose based on current status the next difficulty level and then at that level choose the highest discrimination )
+
 # Step 6: Build dashboard
 
 shiny dashboard in r
