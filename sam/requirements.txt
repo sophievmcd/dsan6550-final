@@ -1,0 +1,7 @@
+numpy
+pandas
+scipy
+girth
+factor_analyzer
+plotly
+jinja2
