@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Economic Policy Ideology CAT Report</title>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<style>
+:root {
+  --bg: #ffffff;
+  --fg: #000000;
+  --border: #cccccc;
+  --subtle: #555555;
+  --accent-bg: #f5f5f5;
+  --btn-bg: #000000;
+  --btn-fg: #ffffff;
+  --tag-bg: #eeeeee;
+  --progress-bg: #dddddd;
+  --progress-fill: #000000;
+  --selected-a: #0066cc;
+  --selected-b: #cc3300;
+}
+body.dark {
+  --bg: #000000;
+  --fg: #ffffff;
+  --border: #444444;
+  --subtle: #aaaaaa;
+  --accent-bg: #111111;
+  --btn-bg: #ffffff;
+  --btn-fg: #000000;
+  --tag-bg: #222222;
+  --progress-bg: #333333;
+  --progress-fill: #ffffff;
+  --selected-a: #66aaff;
+  --selected-b: #ff7755;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:var(--bg);color:var(--fg);
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:15px;line-height:1.65;
+  transition:background 0.15s,color 0.15s;
+}
+a{color:var(--fg);}
+h1{font-size:1.9rem;font-weight:700;margin-bottom:0.3rem;}
+h2{font-size:1.4rem;font-weight:700;margin:2rem 0 0.8rem;}
+h3{font-size:1.1rem;font-weight:600;margin:1.4rem 0 0.5rem;}
+p{margin-bottom:0.8rem;}
+
+/* Nav */
+#topnav{
+  position:sticky;top:0;z-index:100;
+  background:var(--bg);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0.5rem 2rem;
+}
+#topnav .nav-links{display:flex;gap:1.2rem;flex-wrap:wrap;}
+#topnav a{font-size:0.82rem;text-decoration:none;color:var(--subtle);}
+#topnav a:hover{color:var(--fg);}
+#theme-toggle{
+  background:var(--btn-bg);color:var(--btn-fg);
+  border:none;border-radius:4px;padding:0.35rem 0.8rem;
+  font-size:0.8rem;cursor:pointer;white-space:nowrap;
+}
+
+/* Layout */
+.page{max-width:960px;margin:0 auto;padding:2rem 1.5rem;}
+section{margin-bottom:3.5rem;}
+hr{border:none;border-top:1px solid var(--border);margin:2rem 0;}
+
+/* Stats grid */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin:1rem 0;}
+.stat-box{border:1px solid var(--border);border-radius:6px;padding:1rem;text-align:center;}
+.stat-val{font-size:1.8rem;font-weight:700;}
+.stat-lbl{font-size:0.78rem;color:var(--subtle);margin-top:0.2rem;}
+
+/* Tables */
+.table-wrap{overflow-x:auto;margin:1rem 0;}
+table{width:100%;border-collapse:collapse;font-size:0.83rem;}
+th{text-align:left;border-bottom:2px solid var(--fg);padding:0.4rem 0.5rem;white-space:nowrap;}
+td{border-bottom:1px solid var(--border);padding:0.4rem 0.5rem;vertical-align:top;}
+tr:hover td{background:var(--accent-bg);}
+
+/* Plot containers */
+.plot{width:100%;height:320px;}
+.plot-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0;}
+@media(max-width:600px){.plot-row{grid-template-columns:1fr;}}
+
+/* Tabs */
+.tab-bar{display:flex;border-bottom:2px solid var(--border);margin-bottom:1rem;}
+.tab-btn{
+  background:none;border:none;border-bottom:3px solid transparent;
+  padding:0.5rem 1.2rem;cursor:pointer;font-size:0.9rem;color:var(--subtle);
+  margin-bottom:-2px;
+}
+.tab-btn.active{border-bottom-color:var(--fg);color:var(--fg);font-weight:600;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* CAT interactive */
+#cat-section .question-card{
+  border:1px solid var(--border);border-radius:8px;padding:1.5rem;margin:1rem 0;
+  background:var(--accent-bg);
+}
+.option-btn{
+  display:block;width:100%;text-align:left;
+  background:var(--bg);color:var(--fg);
+  border:1px solid var(--border);border-radius:6px;
+  padding:0.8rem 1rem;margin:0.5rem 0;cursor:pointer;
+  font-size:0.9rem;
+}
+.option-btn:hover{background:var(--accent-bg);border-color:var(--fg);}
+.option-btn.selected-a{border-color:var(--selected-a);background:color-mix(in srgb, var(--selected-a) 10%, var(--bg));}
+.option-btn.selected-b{border-color:var(--selected-b);background:color-mix(in srgb, var(--selected-b) 10%, var(--bg));}
+.progress-bar{height:8px;background:var(--progress-bg);border-radius:4px;margin:0.8rem 0;}
+.progress-fill{height:100%;background:var(--progress-fill);border-radius:4px;transition:width 0.3s;}
+.theta-display{display:flex;gap:2rem;margin:0.8rem 0;font-size:0.9rem;}
+.theta-display span{color:var(--subtle);}
+.theta-display strong{color:var(--fg);}
+#cat-result{
+  border:2px solid var(--fg);border-radius:8px;padding:2rem;
+  text-align:center;display:none;margin-top:1rem;
+}
+#cat-result .final-val{font-size:2.2rem;font-weight:700;margin:0.5rem 0;}
+.subdomain-tag{
+  display:inline-block;background:var(--tag-bg);
+  border-radius:3px;padding:0.1rem 0.4rem;font-size:0.75rem;margin-bottom:0.5rem;
+}
+
+/* Demo step walker */
+.step-nav{display:flex;gap:0.5rem;align-items:center;margin:1rem 0;}
+.step-btn{
+  background:var(--btn-bg);color:var(--btn-fg);
+  border:none;border-radius:4px;padding:0.35rem 0.9rem;cursor:pointer;font-size:0.85rem;
+}
+.step-btn:disabled{opacity:0.35;cursor:default;}
+.step-indicator{font-size:0.85rem;color:var(--subtle);}
+.step-card{border:1px solid var(--border);border-radius:8px;padding:1.2rem;margin:0.5rem 0;background:var(--accent-bg);}
+.step-item-stem{font-size:0.9rem;margin-bottom:0.7rem;}
+.step-response{font-size:0.85rem;color:var(--subtle);margin-bottom:0.5rem;}
+.step-theta{display:flex;gap:2rem;font-size:0.85rem;margin-bottom:0.5rem;}
+.justification{font-size:0.8rem;color:var(--subtle);border-left:3px solid var(--border);padding-left:0.7rem;margin-top:0.6rem;}
+.demo-summary{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:0.8rem;
+  margin-bottom:1.2rem;font-size:0.85rem;
+}
+.demo-summary div{border:1px solid var(--border);border-radius:6px;padding:0.7rem;text-align:center;}
+.demo-summary strong{display:block;font-size:1.2rem;}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav id="topnav">
+  <div class="nav-links">
+    <a href="#overview">Overview</a>
+    <a href="#items">Item Bank</a>
+    <a href="#simulation">Simulation</a>
+    <a href="#calibration">Calibration</a>
+    <a href="#reliability">Reliability</a>
+    <a href="#engine">CAT Engine</a>
+    <a href="#interactive">Take the CAT</a>
+    <a href="#demos">Demo Respondents</a>
+    <a href="#conclusion">Conclusion</a>
+  </div>
+  <button id="theme-toggle" onclick="toggleTheme()">Dark mode</button>
+</nav>
+
+<div class="page">
+
+<!-- 1. Overview -->
+<section id="overview">
+<h1>Economic Policy Ideology CAT</h1>
+<p>This report documents a complete Computerized Adaptive Test (CAT) pipeline built around a 30-item forced-choice item bank measuring a single latent dimension of <strong>economic policy ideology</strong> (progressive &harr; conservative). Items were generated with AI assistance and span six subdomains: taxation, government spending, labor markets, healthcare, corporate regulation, and trade.</p>
+
+<h2>Why 2PL?</h2>
+<p>Each item presents two substantively grounded policy positions (option A = progressive, option B = conservative). Because neither option is "correct," there is no guessing parameter, making the three-parameter logistic model inappropriate. The two-parameter logistic (2PL) model captures variation in both the <em>location</em> (ideological threshold, parameter b) and <em>slope</em> (discriminating power, parameter a) of each item's characteristic curve.</p>
+
+<h2>Target population</h2>
+<p>English-speaking adults with an opinion on national economic policy. The latent trait theta is standardized so that theta = 0 corresponds to the ideological center; negative values indicate progressive orientation and positive values indicate conservative orientation.</p>
+</section>
+
+<!-- 2. Item Bank -->
+<section id="items">
+<h2>Item Bank</h2>
+<p>The pool contains 30 forced-choice items across six subdomains. Calibrated discrimination (a) and difficulty (b) parameters are shown below. Items are sortable by clicking the column headers.</p>
+<div class="table-wrap">
+<table id="item-table">
+  <thead>
+    <tr>
+      <th onclick="sortTable('item-table',0)" style="cursor:pointer"># &#x25B2;&#x25BC;</th>
+      <th onclick="sortTable('item-table',1)" style="cursor:pointer">Subdomain &#x25B2;&#x25BC;</th>
+      <th onclick="sortTable('item-table',2)" style="cursor:pointer">Contrast &#x25B2;&#x25BC;</th>
+      <th>Item Stem (abbreviated)</th>
+      <th onclick="sortTable('item-table',4)" style="cursor:pointer">a &#x25B2;&#x25BC;</th>
+      <th onclick="sortTable('item-table',5)" style="cursor:pointer">b &#x25B2;&#x25BC;</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for row in item_table %}
+  <tr>
+    <td>{{ row.num }}</td>
+    <td>{{ row.subdomain }}</td>
+    <td>{{ row.contrast }}</td>
+    <td title="{{ row.stem }}">{{ row.stem[:80] }}{% if row.stem|length > 80 %}...{% endif %}</td>
+    <td>{{ row.a_hat }}</td>
+    <td>{{ row.b_hat }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+</section>
+
+<!-- 3. Simulation -->
+<section id="simulation">
+<h2>Data Simulation</h2>
+<p>Five hundred respondents were drawn with theta ~ N(0, 1). For each person-item pair, the 2PL model determined P(B=1 | theta), and a binary response was Bernoulli-sampled. True item parameters were assigned deterministically from subdomain difficulty labels: Medium |b| ~ U(0, 0.5), Moderate |b| ~ U(0.5, 1.0), More extreme |b| ~ U(1.0, 1.8); sign alternated within each subdomain to spread information across the theta range. Discrimination a ~ U(0.8, 2.2). All draws used a fixed seed (42) for reproducibility.</p>
+
+<div class="plot-row">
+  <div id="plot-hist" class="plot"></div>
+  <div id="plot-response-rate" class="plot"></div>
+</div>
+</section>
+
+<!-- 4. Calibration -->
+<section id="calibration">
+<h2>Calibration</h2>
+<p>Item parameters were estimated via Marginal Maximum Likelihood EM using the <code>girth</code> library (<code>twopl_mml</code>). The algorithm marginalizes over theta using Gauss-Hermite quadrature and iterates until convergence. The plots below compare true (simulated) parameters to recovered estimates, validating the calibration.</p>
+
+<div class="stat-grid">
+  <div class="stat-box"><div class="stat-val">{{ r_a }}</div><div class="stat-lbl">Pearson r (a)</div></div>
+  <div class="stat-box"><div class="stat-val">{{ r_b }}</div><div class="stat-lbl">Pearson r (b)</div></div>
+  <div class="stat-box"><div class="stat-val">{{ rmse_a }}</div><div class="stat-lbl">RMSE (a)</div></div>
+  <div class="stat-box"><div class="stat-val">{{ rmse_b }}</div><div class="stat-lbl">RMSE (b)</div></div>
+</div>
+
+<div class="plot-row">
+  <div id="plot-recovery-a" class="plot"></div>
+  <div id="plot-recovery-b" class="plot"></div>
+</div>
+</section>
+
+<!-- 5. Reliability and Validity -->
+<section id="reliability">
+<h2>Reliability and Validity</h2>
+
+<div class="stat-grid">
+  <div class="stat-box"><div class="stat-val">{{ alpha }}</div><div class="stat-lbl">Cronbach alpha</div></div>
+  <div class="stat-box"><div class="stat-val">{{ marginal_rel }}</div><div class="stat-lbl">Marginal reliability</div></div>
+  <div class="stat-box"><div class="stat-val">{{ eigenvalues[0] }}</div><div class="stat-lbl">1st eigenvalue</div></div>
+  <div class="stat-box"><div class="stat-val">{{ eigenvalues[1] }}</div><div class="stat-lbl">2nd eigenvalue</div></div>
+</div>
+
+<h3>Unidimensionality</h3>
+<p>The scree plot below shows eigenvalues of the inter-item Pearson correlation matrix. Clear dominance of the first eigenvalue supports the single-factor assumption required by 2PL. (Top 5 eigenvalues: {{ eigenvalues | join(", ") }}.)</p>
+<div id="plot-scree" class="plot"></div>
+
+<h3>Test Information Function</h3>
+<p>The TIF shows where along the ideology continuum the test is most informative. Peak information near theta = 0 reflects the balanced item bank design.</p>
+<div id="plot-tif" class="plot"></div>
+
+<h3>Item-Total Correlations</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Item</th><th>Item-Total r</th><th>Item</th><th>Item-Total r</th><th>Item</th><th>Item-Total r</th></tr></thead>
+  <tbody>
+  {% set ns = namespace(i=0) %}
+  {% for num, r in itc_data %}
+  {% if ns.i % 3 == 0 %}<tr>{% endif %}
+  <td>{{ num }}</td><td>{{ r }}</td>
+  {% if ns.i % 3 == 2 %}</tr>{% endif %}
+  {% set ns.i = ns.i + 1 %}
+  {% endfor %}
+  {% if ns.i % 3 != 0 %}</tr>{% endif %}
+  </tbody>
+</table>
+</div>
+
+<h3>Item Fit (Standardized Residuals)</h3>
+<p>Dashed lines mark the +/- 1.96 threshold (p = 0.05). Items outside the band warrant review.</p>
+<div id="plot-item-fit" class="plot"></div>
+</section>
+
+<!-- 6. CAT Engine -->
+<section id="engine">
+<h2>CAT Engine Design</h2>
+
+<h3>Start rule</h3>
+<p>Begin with the item whose estimated difficulty b_hat is closest to 0 (ideological center) among items with above-median discrimination a_hat. This maximizes initial information for respondents near the population mean.</p>
+
+<h3>Item selection</h3>
+<p>At each step, compute Fisher information I(theta_hat) = a^2 * P(theta_hat) * (1 - P(theta_hat)) for every unadministered item and select the item with the highest value. Each item may be administered at most once per respondent.</p>
+
+<h3>Theta estimation</h3>
+<p>Theta is estimated by maximum likelihood (bounded Brent's method). When all responses so far are identical (e.g., all B or all A), MLE diverges; in that case, Expected A Posteriori estimation with a N(0, 1) prior is used as a fallback. The standard error is SE = 1 / sqrt(sum of item Fisher information at theta_hat).</p>
+
+<h3>Stop rule</h3>
+<p>Testing stops when SE &lt; 0.30 (measurement precision achieved) or when 20 items have been administered (maximum length), whichever comes first.</p>
+</section>
+
+<!-- 7. Interactive CAT -->
+<section id="interactive">
+<h2>Take the CAT</h2>
+<p>Answer each question by clicking option A or option B. The test will stop when measurement precision is sufficient (SE &lt; 0.30) or after 20 items. Your final ideology estimate will appear at the end.</p>
+
+<div id="cat-area">
+  <div class="theta-display">
+    <div><span>Items administered: </span><strong id="cat-n">0</strong> / 20</div>
+    <div><span>Current theta_hat: </span><strong id="cat-theta">—</strong></div>
+    <div><span>SE: </span><strong id="cat-se">—</strong></div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="cat-progress" style="width:0%"></div></div>
+
+  <div id="cat-question" class="question-card" style="display:none;">
+    <div class="subdomain-tag" id="cat-subdomain"></div>
+    <p id="cat-stem" style="font-weight:600;margin-bottom:0.8rem;"></p>
+    <button class="option-btn" id="cat-btn-a" onclick="catAnswer(0)"></button>
+    <button class="option-btn" id="cat-btn-b" onclick="catAnswer(1)"></button>
+  </div>
+
+  <div id="cat-start-area" style="margin:1rem 0;">
+    <button class="step-btn" onclick="catStart()">Start Test</button>
+  </div>
+
+  <div id="cat-plots-row" class="plot-row" style="display:none;">
+    <div id="cat-icc" class="plot"></div>
+    <div id="cat-iic" class="plot"></div>
+  </div>
+
+  <div id="cat-result">
+    <p>Test complete.</p>
+    <div class="final-val" id="cat-result-theta"></div>
+    <p id="cat-result-label" style="color:var(--subtle);font-size:1rem;"></p>
+    <p style="font-size:0.85rem;margin-top:0.8rem;">Items administered: <strong id="cat-result-n"></strong> &nbsp;|&nbsp; Final SE: <strong id="cat-result-se"></strong></p>
+    <br>
+    <button class="step-btn" onclick="catReset()">Retake</button>
+  </div>
+</div>
+</section>
+
+<!-- 8. Demo Respondents -->
+<section id="demos">
+<h2>Demo Respondents</h2>
+<p>Three simulated respondents with true theta = -1.5 (progressive), 0.0 (moderate), and +1.5 (conservative) illustrate how the CAT adapts to different ideology profiles. Responses at each step are drawn from the calibrated 2PL model.</p>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="setDemoTab('progressive',this)">Progressive (theta = -1.5)</button>
+  <button class="tab-btn" onclick="setDemoTab('moderate',this)">Moderate (theta = 0.0)</button>
+  <button class="tab-btn" onclick="setDemoTab('conservative',this)">Conservative (theta = +1.5)</button>
+</div>
+
+{% for label in ['progressive', 'moderate', 'conservative'] %}
+<div class="tab-panel {% if label == 'progressive' %}active{% endif %}" id="demo-tab-{{ label }}">
+  <div class="demo-summary" id="demo-summary-{{ label }}"></div>
+  <div class="step-nav">
+    <button class="step-btn" id="demo-prev-{{ label }}" onclick="demoNav('{{ label }}',-1)" disabled>Prev</button>
+    <button class="step-btn" id="demo-next-{{ label }}" onclick="demoNav('{{ label }}',+1)">Next</button>
+    <span class="step-indicator" id="demo-indicator-{{ label }}">Step 1</span>
+  </div>
+  <div class="step-card" id="demo-card-{{ label }}"></div>
+  <div class="plot-row" style="margin-top:0.8rem;">
+    <div id="demo-icc-{{ label }}" class="plot"></div>
+    <div id="demo-iic-{{ label }}" class="plot"></div>
+  </div>
+</div>
+{% endfor %}
+</section>
+
+<!-- 9. Conclusion -->
+<section id="conclusion">
+<h2>Conclusion</h2>
+<h3>Limitations</h3>
+<ul style="margin-left:1.5rem;margin-bottom:0.8rem;">
+  <li><strong>Small item bank:</strong> Thirty items is the lower bound for a credible CAT. The item pool is quickly exhausted for extreme respondents who may require many items to reach SE &lt; 0.30.</li>
+  <li><strong>Single dimension:</strong> Economic ideology is multidimensional in practice (e.g., fiscal conservatism vs. social conservatism). The unidimensional 2PL model is an approximation.</li>
+  <li><strong>Simulation assumptions:</strong> True parameters were set manually and responses were drawn from the exact 2PL model. Real response data deviates from this ideal due to acquiescence bias, random responding, and context effects.</li>
+  <li><strong>MLE instability:</strong> Early in the CAT (1-2 items administered) with uniform responses, MLE diverges. The EAP fallback mitigates this but introduces prior dependence.</li>
+  <li><strong>Binary forced choice:</strong> Forced-choice format eliminates acquiescence bias but may frustrate respondents who hold nuanced positions and limits the response scale to a single bit of information per item.</li>
+</ul>
+<h3>Challenges encountered</h3>
+<ul style="margin-left:1.5rem;margin-bottom:0.8rem;">
+  <li>Balancing item difficulty across subdomains while maintaining alternating b-parameter signs required careful constraint design.</li>
+  <li>Ensuring the interactive CAT's client-side Newton-Raphson converges reliably required replacing pure gradient descent with a bounded grid-search initialization.</li>
+  <li>Self-contained HTML with no server required inlining all Plotly figure data, demo step data, and calibrated parameters, making the file large but fully portable.</li>
+</ul>
+</section>
+
+</div><!-- .page -->
+
+<!-- Data and scripts -->
+<script>
+const _histFig = {{ hist_fig | safe }};
+const _responseRateFig = {{ response_rate_fig | safe }};
+const _figARecovery = {{ fig_a_recovery | safe }};
+const _figBRecovery = {{ fig_b_recovery | safe }};
+const _screeFig = {{ scree_fig | safe }};
+const _tifFig = {{ tif_fig | safe }};
+const _itemFitFig = {{ item_fit_fig | safe }};
+const demoData = {{ demo_js | safe }};
+const catItems = {{ cat_params_js | safe }};
+
+// ── Theme ──────────────────────────────────────────────────────────────────
+function toggleTheme(){
+  document.body.classList.toggle('dark');
+  document.getElementById('theme-toggle').textContent =
+    document.body.classList.contains('dark') ? 'Light mode' : 'Dark mode';
+  reRenderStaticPlots();
+  // Re-render whichever demo tab is currently visible
+  for(const label of ['progressive','moderate','conservative']){
+    if(document.getElementById('demo-tab-'+label).classList.contains('active')){
+      renderDemoStep(label, demoState[label]);
+      break;
+    }
+  }
+  // Re-render interactive CAT plots if a test is in progress
+  if(catState.currentItem && !catState.done){
+    renderCatPlots(catState.currentItem);
+  }
+}
+
+// ── Static plots ───────────────────────────────────────────────────────────
+const _plotConfig = {responsive:true, displayModeBar:false};
+
+function _applyTheme(layout){
+  const dark = document.body.classList.contains('dark');
+  const fg = dark ? '#ffffff' : '#000000';
+  const grid = dark ? '#333333' : '#dddddd';
+  return Object.assign({}, layout, {
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: Object.assign({}, layout.font||{}, {color: fg}),
+    xaxis: Object.assign({}, layout.xaxis||{}, {color:fg, gridcolor:grid, zerolinecolor:grid}),
+    yaxis: Object.assign({}, layout.yaxis||{}, {color:fg, gridcolor:grid, zerolinecolor:grid}),
+  });
+}
+
+function renderFig(divId, fig){
+  Plotly.newPlot(divId, fig.data, _applyTheme(fig.layout), _plotConfig);
+}
+
+function reRenderStaticPlots(){
+  renderFig('plot-hist', _histFig);
+  renderFig('plot-response-rate', _responseRateFig);
+  renderFig('plot-recovery-a', _figARecovery);
+  renderFig('plot-recovery-b', _figBRecovery);
+  renderFig('plot-scree', _screeFig);
+  renderFig('plot-tif', _tifFig);
+  renderFig('plot-item-fit', _itemFitFig);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  reRenderStaticPlots();
+  initDemos();
+});
+
+// ── Table sort ─────────────────────────────────────────────────────────────
+function sortTable(tableId, col){
+  const tbl = document.getElementById(tableId);
+  const tbody = tbl.tBodies[0];
+  const rows = Array.from(tbody.rows);
+  const asc = tbl.dataset.sortCol == col && tbl.dataset.sortDir == 'asc';
+  rows.sort((a,b)=>{
+    let va = a.cells[col].textContent.trim();
+    let vb = b.cells[col].textContent.trim();
+    const na = parseFloat(va), nb = parseFloat(vb);
+    if(!isNaN(na)&&!isNaN(nb)) return asc ? nb-na : na-nb;
+    return asc ? vb.localeCompare(va) : va.localeCompare(vb);
+  });
+  rows.forEach(r=>tbody.appendChild(r));
+  tbl.dataset.sortCol = col;
+  tbl.dataset.sortDir = asc ? 'desc' : 'asc';
+}
+
+// ── CAT engine (client-side) ───────────────────────────────────────────────
+let catState = {};
+
+function fisherInfo(a, b, theta){
+  const logit = a*(theta-b);
+  const P = 1/(1+Math.exp(-logit));
+  return a*a*P*(1-P);
+}
+
+function eapTheta(responses, administered){
+  const grid = Array.from({length:200},(_,i)=>-4+8*i/199);
+  const logLik = grid.map(th=>{
+    let ll=0;
+    for(const n of administered){
+      const it=catItems.find(x=>x.item_number===n);
+      const logit=it.a_hat*(th-it.b_hat);
+      const P=Math.min(Math.max(1/(1+Math.exp(-logit)),1e-8),1-1e-8);
+      const r=responses[n];
+      ll+=r*Math.log(P)+(1-r)*Math.log(1-P);
+    }
+    return ll;
+  });
+  const prior=grid.map(t=>-0.5*t*t);
+  const lp=logLik.map((ll,i)=>ll+prior[i]);
+  const mx=Math.max(...lp);
+  const post=lp.map(v=>Math.exp(v-mx));
+  const s=post.reduce((a,b)=>a+b,0);
+  const pn=post.map(v=>v/s);
+  const th=grid.reduce((a,t,i)=>a+t*pn[i],0);
+  const th2=grid.reduce((a,t,i)=>a+t*t*pn[i],0);
+  const se=Math.sqrt(Math.max(th2-th*th,1e-4));
+  return {theta:th, se};
+}
+
+function mleTheta(responses, administered){
+  // Grid search + Newton-Raphson refinement
+  let best=0, bestNLL=Infinity;
+  const g=Array.from({length:120},(_,i)=>-5+10*i/119);
+  for(const th of g){
+    let nll=0;
+    for(const n of administered){
+      const it=catItems.find(x=>x.item_number===n);
+      const logit=it.a_hat*(th-it.b_hat);
+      const P=Math.min(Math.max(1/(1+Math.exp(-logit)),1e-8),1-1e-8);
+      nll-=responses[n]*Math.log(P)+(1-responses[n])*Math.log(1-P);
+    }
+    if(nll<bestNLL){bestNLL=nll;best=th;}
+  }
+  let th=best;
+  for(let i=0;i<60;i++){
+    let grad=0,hess=0;
+    for(const n of administered){
+      const it=catItems.find(x=>x.item_number===n);
+      const logit=it.a_hat*(th-it.b_hat);
+      const P=Math.min(Math.max(1/(1+Math.exp(-logit)),1e-8),1-1e-8);
+      grad+=it.a_hat*(responses[n]-P);
+      hess-=it.a_hat*it.a_hat*P*(1-P);
+    }
+    if(Math.abs(hess)<1e-10) break;
+    const delta=-grad/hess;
+    th=Math.min(Math.max(th+delta,-6),6);
+    if(Math.abs(delta)<1e-7) break;
+  }
+  let info=0;
+  for(const n of administered){
+    const it=catItems.find(x=>x.item_number===n);
+    info+=fisherInfo(it.a_hat,it.b_hat,th);
+  }
+  return {theta:th, se:1/Math.sqrt(Math.max(info,0.01))};
+}
+
+function updateTheta(responses, administered){
+  const vals=administered.map(n=>responses[n]);
+  if(vals.every(v=>v===vals[0])) return eapTheta(responses,administered);
+  return mleTheta(responses,administered);
+}
+
+function selectNext(theta, administered){
+  const rem=catItems.filter(it=>!administered.includes(it.item_number));
+  let best=null, bestI=-1;
+  for(const it of rem){
+    const info=fisherInfo(it.a_hat,it.b_hat,theta);
+    if(info>bestI){bestI=info;best=it;}
+  }
+  return best;
+}
+
+function getStartItem(){
+  const as=catItems.map(it=>it.a_hat).sort((a,b)=>a-b);
+  const medA=as[Math.floor(as.length/2)];
+  const highA=catItems.filter(it=>it.a_hat>=medA);
+  let best=null, bestD=Infinity;
+  for(const it of highA){
+    const d=Math.abs(it.b_hat);
+    if(d<bestD){bestD=d;best=it;}
+  }
+  return best;
+}
+
+function interpretTheta(th){
+  if(th<-1.5) return "strongly progressive";
+  if(th<-0.5) return "moderately progressive";
+  if(th< 0.5) return "moderate";
+  if(th< 1.5) return "moderately conservative";
+  return "strongly conservative";
+}
+
+function renderCatPlots(item){
+  const tRange=Array.from({length:200},(_,i)=>-4+8*i/199);
+  const P=tRange.map(t=>1/(1+Math.exp(-item.a_hat*(t-item.b_hat))));
+  const I=P.map((p,i)=>item.a_hat**2*p*(1-p));
+  const th=catState.theta;
+  const Phat=1/(1+Math.exp(-item.a_hat*(th-item.b_hat)));
+  const Ihat=item.a_hat**2*Phat*(1-Phat);
+  const dark=document.body.classList.contains('dark');
+  const fg=dark?'#fff':'#000'; const grid=dark?'#333':'#ddd';
+  const base={paper_bgcolor:'rgba(0,0,0,0)',plot_bgcolor:'rgba(0,0,0,0)',
+    font:{color:fg},margin:{l:50,r:10,t:35,b:45},
+    xaxis:{color:fg,gridcolor:grid,zerolinecolor:grid},
+    yaxis:{color:fg,gridcolor:grid,zerolinecolor:grid}};
+
+  Plotly.newPlot('cat-icc',
+    [{x:tRange,y:P,mode:'lines',line:{color:fg},name:'ICC'},
+     {x:[th],y:[Phat],mode:'markers',marker:{color:'red',size:12},name:'current'}],
+    Object.assign({},base,{title:`ICC: item ${item.item_number}`,
+      xaxis:Object.assign({},base.xaxis,{title:'Theta'}),
+      yaxis:Object.assign({},base.yaxis,{title:'P(B=1)',range:[0,1]})}),
+    _plotConfig);
+
+  Plotly.newPlot('cat-iic',
+    [{x:tRange,y:I,mode:'lines',line:{color:fg},name:'IIC'},
+     {x:[th],y:[Ihat],mode:'markers',marker:{color:'red',size:12},name:'current'}],
+    Object.assign({},base,{title:`IIC: item ${item.item_number}`,
+      xaxis:Object.assign({},base.xaxis,{title:'Theta'}),
+      yaxis:Object.assign({},base.yaxis,{title:'Information'})}),
+    _plotConfig);
+}
+
+function catStart(){
+  catState = {responses:{}, administered:[], theta:0, se:1, done:false};
+  document.getElementById('cat-start-area').style.display='none';
+  document.getElementById('cat-result').style.display='none';
+  document.getElementById('cat-question').style.display='block';
+  document.getElementById('cat-plots-row').style.display='grid';
+  const first=getStartItem();
+  catState.currentItem=first;
+  showCatQuestion(first);
+}
+
+function showCatQuestion(item){
+  document.getElementById('cat-subdomain').textContent=item.subdomain;
+  document.getElementById('cat-stem').textContent=item.item_stem;
+  document.getElementById('cat-btn-a').textContent='A: '+item.option_A;
+  document.getElementById('cat-btn-b').textContent='B: '+item.option_B;
+  document.getElementById('cat-btn-a').className='option-btn';
+  document.getElementById('cat-btn-b').className='option-btn';
+  renderCatPlots(item);
+}
+
+function catAnswer(resp){
+  if(catState.done) return;
+  const item=catState.currentItem;
+  catState.administered.push(item.item_number);
+  catState.responses[item.item_number]=resp;
+
+  document.getElementById('cat-btn-a').className='option-btn'+(resp===0?' selected-a':'');
+  document.getElementById('cat-btn-b').className='option-btn'+(resp===1?' selected-b':'');
+  document.getElementById('cat-btn-a').disabled=true;
+  document.getElementById('cat-btn-b').disabled=true;
+
+  const est=updateTheta(catState.responses, catState.administered);
+  catState.theta=est.theta;
+  catState.se=est.se;
+
+  const n=catState.administered.length;
+  document.getElementById('cat-n').textContent=n;
+  document.getElementById('cat-theta').textContent=est.theta.toFixed(3);
+  document.getElementById('cat-se').textContent=est.se.toFixed(3);
+  document.getElementById('cat-progress').style.width=(n/20*100)+'%';
+
+  renderCatPlots(item);
+
+  setTimeout(()=>{
+    if(est.se<0.30 || n>=20){
+      catFinish(est,n);
+    } else {
+      const next=selectNext(est.theta, catState.administered);
+      if(!next){catFinish(est,n);return;}
+      catState.currentItem=next;
+      document.getElementById('cat-btn-a').disabled=false;
+      document.getElementById('cat-btn-b').disabled=false;
+      showCatQuestion(next);
+    }
+  },600);
+}
+
+function catFinish(est, n){
+  catState.done=true;
+  document.getElementById('cat-question').style.display='none';
+  const r=document.getElementById('cat-result');
+  r.style.display='block';
+  document.getElementById('cat-result-theta').textContent='theta_hat = '+est.theta.toFixed(3);
+  document.getElementById('cat-result-label').textContent=interpretTheta(est.theta);
+  document.getElementById('cat-result-n').textContent=n;
+  document.getElementById('cat-result-se').textContent=est.se.toFixed(3);
+}
+
+function catReset(){
+  document.getElementById('cat-result').style.display='none';
+  document.getElementById('cat-question').style.display='none';
+  document.getElementById('cat-plots-row').style.display='none';
+  document.getElementById('cat-start-area').style.display='block';
+  document.getElementById('cat-n').textContent='0';
+  document.getElementById('cat-theta').textContent='—';
+  document.getElementById('cat-se').textContent='—';
+  document.getElementById('cat-progress').style.width='0%';
+}
+
+// ── Demo respondents ───────────────────────────────────────────────────────
+const demoState = {progressive:0, moderate:0, conservative:0};
+
+function initDemos(){
+  for(const label of ['progressive','moderate','conservative']){
+    const d=demoData[label];
+    const s=document.getElementById('demo-summary-'+label);
+    s.innerHTML=`
+      <div><strong>${d.true_theta.toFixed(1)}</strong>True theta</div>
+      <div><strong>${d.final_theta.toFixed(3)}</strong>Final estimate</div>
+      <div><strong>${d.final_se.toFixed(3)}</strong>Final SE</div>
+      <div><strong>${d.n_items}</strong>Items used</div>
+      <div><strong>${d.stopped_by}</strong>Stopped by</div>
+    `;
+    renderDemoStep(label, 0);
+  }
+}
+
+function renderDemoStep(label, stepIdx){
+  const d=demoData[label];
+  const s=d.steps[stepIdx];
+  demoState[label]=stepIdx;
+
+  document.getElementById('demo-indicator-'+label).textContent=
+    `Step ${stepIdx+1} of ${d.steps.length}`;
+  document.getElementById('demo-prev-'+label).disabled=(stepIdx===0);
+  document.getElementById('demo-next-'+label).disabled=(stepIdx===d.steps.length-1);
+
+  const card=document.getElementById('demo-card-'+label);
+  card.innerHTML=`
+    <div class="subdomain-tag">${s.subdomain}</div>
+    <div class="step-item-stem"><strong>Item ${s.item_number}:</strong> ${s.item_stem}</div>
+    <div style="font-size:0.85rem;margin-bottom:0.4rem;">
+      <span style="color:var(--subtle)">A:</span> ${s.option_A}<br>
+      <span style="color:var(--subtle)">B:</span> ${s.option_B}
+    </div>
+    <div class="step-response">Response: <strong>${s.response_label}</strong>
+      &nbsp;(${s.response===1?'conservative':'progressive'} option)</div>
+    <div class="step-theta">
+      <span>theta_hat = <strong>${s.theta_hat}</strong></span>
+      <span>SE = <strong>${s.se}</strong></span>
+      <span>a = <strong>${s.a}</strong></span>
+      <span>b = <strong>${s.b}</strong></span>
+    </div>
+    <div class="justification">${s.justification}</div>
+  `;
+
+  const dark=document.body.classList.contains('dark');
+  const fg=dark?'#fff':'#000'; const grid=dark?'#333':'#ddd';
+  const base={paper_bgcolor:'rgba(0,0,0,0)',plot_bgcolor:'rgba(0,0,0,0)',
+    font:{color:fg},margin:{l:50,r:10,t:35,b:45},
+    xaxis:{title:'Theta',color:fg,gridcolor:grid,zerolinecolor:grid},
+    yaxis:{color:fg,gridcolor:grid,zerolinecolor:grid}};
+
+  Plotly.newPlot('demo-icc-'+label,
+    [{x:s.theta_range,y:s.P_icc,mode:'lines',line:{color:fg},name:'ICC'},
+     {x:[s.theta_hat],y:[s.P_hat],mode:'markers',marker:{color:'red',size:12},name:'theta_hat'}],
+    Object.assign({},base,{title:`ICC: item ${s.item_number} (a=${s.a}, b=${s.b})`,
+      yaxis:Object.assign({},base.yaxis,{title:'P(B=1)',range:[0,1]})}),
+    _plotConfig);
+
+  Plotly.newPlot('demo-iic-'+label,
+    [{x:s.theta_range,y:s.I_iic,mode:'lines',line:{color:fg},name:'IIC'},
+     {x:[s.theta_hat],y:[s.I_hat],mode:'markers',marker:{color:'red',size:12},name:'theta_hat'}],
+    Object.assign({},base,{title:`IIC: item ${s.item_number}`,
+      yaxis:Object.assign({},base.yaxis,{title:'Information'})}),
+    _plotConfig);
+}
+
+function demoNav(label, dir){
+  const d=demoData[label];
+  const newIdx=Math.min(Math.max(demoState[label]+dir,0),d.steps.length-1);
+  renderDemoStep(label, newIdx);
+}
+
+function setDemoTab(label, btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('demo-tab-'+label).classList.add('active');
+  // Re-render plots now that the container is visible (Plotly renders at 0x0 in display:none)
+  renderDemoStep(label, demoState[label]);
+}
+</script>
+</body>
+</html>
