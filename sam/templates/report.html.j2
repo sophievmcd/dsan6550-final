@@ -97,6 +97,27 @@ tr:hover td{background:var(--accent-bg);}
 .tab-panel{display:none;}
 .tab-panel.active{display:block;}
 
+/* Top-level tabs (CAT / Demos / Overview) — live inside #topnav */
+#topnav .top-tab-bar{display:flex;gap:0.35rem;flex-wrap:wrap;}
+.top-tab-btn{
+  background:none;border:none;border-radius:4px;
+  padding:0.45rem 1rem;cursor:pointer;
+  font-size:0.85rem;color:var(--subtle);font-weight:500;
+  letter-spacing:0.01em;
+}
+.top-tab-btn:hover{color:var(--fg);background:var(--accent-bg);}
+.top-tab-btn.active{color:var(--fg);background:var(--accent-bg);font-weight:600;}
+.top-tab-panel{display:none;}
+.top-tab-panel.active{display:block;}
+.tab-intro{
+  border-left:3px solid var(--border);
+  padding:0.6rem 0 0.6rem 1rem;margin:1rem 0 1.5rem;
+  color:var(--subtle);font-size:0.92rem;
+}
+.tab-intro strong{color:var(--fg);}
+.tab-intro ol{margin:0.4rem 0 0 1.4rem;}
+.tab-intro li{margin-bottom:0.2rem;}
+
 /* CAT interactive */
 #cat-section .question-card{
   border:1px solid var(--border);border-radius:8px;padding:1.5rem;margin:1rem 0;
@@ -152,21 +173,127 @@ tr:hover td{background:var(--accent-bg);}
 
 <!-- Nav -->
 <nav id="topnav">
-  <div class="nav-links">
-    <a href="#overview">Overview</a>
-    <a href="#items">Item Bank</a>
-    <a href="#simulation">Simulation</a>
-    <a href="#calibration">Calibration</a>
-    <a href="#reliability">Reliability</a>
-    <a href="#engine">CAT Engine</a>
-    <a href="#interactive">Take the CAT</a>
-    <a href="#demos">Demo Respondents</a>
-    <a href="#conclusion">Conclusion</a>
+  <div class="top-tab-bar">
+    <button class="top-tab-btn active" onclick="setTopTab('cat', this)">CAT</button>
+    <button class="top-tab-btn" onclick="setTopTab('demos', this)">Demos</button>
+    <button class="top-tab-btn" onclick="setTopTab('overview', this)">Overview</button>
   </div>
   <button id="theme-toggle" onclick="toggleTheme()">Dark mode</button>
 </nav>
 
 <div class="page">
+
+<!-- ════════════════════════════════════════════════════════════════════════
+     TOP TAB 1: CAT (Interactive Assessment) — default active
+     ════════════════════════════════════════════════════════════════════════ -->
+<div class="top-tab-panel active" id="top-panel-cat">
+
+<section id="cat-intro">
+<h1>Take the CAT</h1>
+<p>This <strong>Computerized Adaptive Test</strong> measures your position on economic policy ideology on a single progressive &harr; conservative dimension. After each answer, the test estimates your ideology and selects the next item to be maximally informative for you — so the test adapts as you go.</p>
+<div class="tab-intro">
+<strong>How to take the test</strong>
+<ol>
+  <li>Click <strong>Start Test</strong> below.</li>
+  <li>For each question, click option A or option B — whichever best reflects your view.</li>
+  <li>The test stops automatically when measurement precision is sufficient (SE &lt; 0.30) or after 20 items.</li>
+  <li>Your final ideology estimate and a short verbal interpretation will appear at the end.</li>
+</ol>
+<p style="margin-top:0.6rem;margin-bottom:0;">See the <strong>Overview</strong> tab for the construct, item bank, and full methodology.</p>
+</div>
+</section>
+
+<section id="interactive">
+<h2>Interactive CAT</h2>
+
+<div id="cat-area">
+  <div class="theta-display">
+    <div><span>Items administered: </span><strong id="cat-n">0</strong> / 20</div>
+    <div><span>Current theta_hat: </span><strong id="cat-theta">—</strong></div>
+    <div><span>SE: </span><strong id="cat-se">—</strong></div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="cat-progress" style="width:0%"></div></div>
+
+  <div id="cat-question" class="question-card" style="display:none;">
+    <div class="subdomain-tag" id="cat-subdomain"></div>
+    <p id="cat-stem" style="font-weight:600;margin-bottom:0.8rem;"></p>
+    <button class="option-btn" id="cat-btn-a" onclick="catAnswer(0)"></button>
+    <button class="option-btn" id="cat-btn-b" onclick="catAnswer(1)"></button>
+  </div>
+
+  <div id="cat-start-area" style="margin:1rem 0;">
+    <button class="step-btn" onclick="catStart()">Start Test</button>
+  </div>
+
+  <div id="cat-plots-row" class="plot-row" style="display:none;">
+    <div id="cat-icc" class="plot"></div>
+    <div id="cat-iic" class="plot"></div>
+  </div>
+
+  <div id="cat-result">
+    <p>Test complete.</p>
+    <div class="final-val" id="cat-result-theta"></div>
+    <p id="cat-result-label" style="color:var(--subtle);font-size:1rem;"></p>
+    <p style="font-size:0.85rem;margin-top:0.8rem;">Items administered: <strong id="cat-result-n"></strong> &nbsp;|&nbsp; Final SE: <strong id="cat-result-se"></strong></p>
+    <br>
+    <button class="step-btn" onclick="catReset()">Retake</button>
+  </div>
+</div>
+</section>
+
+</div><!-- /top-panel-cat -->
+
+
+<!-- ════════════════════════════════════════════════════════════════════════
+     TOP TAB 2: Demos — three pre-computed simulated respondents
+     ════════════════════════════════════════════════════════════════════════ -->
+<div class="top-tab-panel" id="top-panel-demos">
+
+<section id="demos-intro">
+<h1>Demo Respondents</h1>
+<p><strong>Purpose.</strong> These three walkthroughs illustrate how the CAT adapts to different ideology profiles. Responses at each step are drawn from the calibrated 2PL model — no real person takes the test; the simulated respondent answers probabilistically according to their true theta.</p>
+<div class="tab-intro">
+<strong>Specifications &amp; what each panel shows</strong>
+<ul style="margin:0.4rem 0 0 1.4rem;">
+  <li><strong>Progressive</strong> (true theta = -1.5) — strongly progressive profile; the CAT should converge to a negative theta_hat.</li>
+  <li><strong>Moderate</strong> (true theta = 0.0) — centrist profile; typically reaches SE &lt; 0.30 in the fewest items.</li>
+  <li><strong>Conservative</strong> (true theta = +1.5) — strongly conservative profile; the CAT should converge to a positive theta_hat.</li>
+</ul>
+<p style="margin-top:0.6rem;margin-bottom:0;">Each demo's summary row lists true theta, final theta_hat, final SE, number of items administered, and stop reason. Use <em>Prev</em> / <em>Next</em> to step through each item and see the item stem, response, updated theta_hat and SE, ICC, IIC, and the selection justification.</p>
+</div>
+</section>
+
+<section id="demos">
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="setDemoTab('progressive',this)">Progressive (theta = -1.5)</button>
+  <button class="tab-btn" onclick="setDemoTab('moderate',this)">Moderate (theta = 0.0)</button>
+  <button class="tab-btn" onclick="setDemoTab('conservative',this)">Conservative (theta = +1.5)</button>
+</div>
+
+{% for label in ['progressive', 'moderate', 'conservative'] %}
+<div class="tab-panel {% if label == 'progressive' %}active{% endif %}" id="demo-tab-{{ label }}">
+  <div class="demo-summary" id="demo-summary-{{ label }}"></div>
+  <div class="step-nav">
+    <button class="step-btn" id="demo-prev-{{ label }}" onclick="demoNav('{{ label }}',-1)" disabled>Prev</button>
+    <button class="step-btn" id="demo-next-{{ label }}" onclick="demoNav('{{ label }}',+1)">Next</button>
+    <span class="step-indicator" id="demo-indicator-{{ label }}">Step 1</span>
+  </div>
+  <div class="step-card" id="demo-card-{{ label }}"></div>
+  <div class="plot-row" style="margin-top:0.8rem;">
+    <div id="demo-icc-{{ label }}" class="plot"></div>
+    <div id="demo-iic-{{ label }}" class="plot"></div>
+  </div>
+</div>
+{% endfor %}
+</section>
+
+</div><!-- /top-panel-demos -->
+
+
+<!-- ════════════════════════════════════════════════════════════════════════
+     TOP TAB 3: Overview — construct, item bank, methodology, conclusion
+     ════════════════════════════════════════════════════════════════════════ -->
+<div class="top-tab-panel" id="top-panel-overview">
 
 <!-- 1. Overview -->
 <section id="overview">
@@ -299,75 +426,7 @@ tr:hover td{background:var(--accent-bg);}
 <p>Testing stops when SE &lt; 0.30 (measurement precision achieved) or when 20 items have been administered (maximum length), whichever comes first.</p>
 </section>
 
-<!-- 7. Interactive CAT -->
-<section id="interactive">
-<h2>Take the CAT</h2>
-<p>Answer each question by clicking option A or option B. The test will stop when measurement precision is sufficient (SE &lt; 0.30) or after 20 items. Your final ideology estimate will appear at the end.</p>
-
-<div id="cat-area">
-  <div class="theta-display">
-    <div><span>Items administered: </span><strong id="cat-n">0</strong> / 20</div>
-    <div><span>Current theta_hat: </span><strong id="cat-theta">—</strong></div>
-    <div><span>SE: </span><strong id="cat-se">—</strong></div>
-  </div>
-  <div class="progress-bar"><div class="progress-fill" id="cat-progress" style="width:0%"></div></div>
-
-  <div id="cat-question" class="question-card" style="display:none;">
-    <div class="subdomain-tag" id="cat-subdomain"></div>
-    <p id="cat-stem" style="font-weight:600;margin-bottom:0.8rem;"></p>
-    <button class="option-btn" id="cat-btn-a" onclick="catAnswer(0)"></button>
-    <button class="option-btn" id="cat-btn-b" onclick="catAnswer(1)"></button>
-  </div>
-
-  <div id="cat-start-area" style="margin:1rem 0;">
-    <button class="step-btn" onclick="catStart()">Start Test</button>
-  </div>
-
-  <div id="cat-plots-row" class="plot-row" style="display:none;">
-    <div id="cat-icc" class="plot"></div>
-    <div id="cat-iic" class="plot"></div>
-  </div>
-
-  <div id="cat-result">
-    <p>Test complete.</p>
-    <div class="final-val" id="cat-result-theta"></div>
-    <p id="cat-result-label" style="color:var(--subtle);font-size:1rem;"></p>
-    <p style="font-size:0.85rem;margin-top:0.8rem;">Items administered: <strong id="cat-result-n"></strong> &nbsp;|&nbsp; Final SE: <strong id="cat-result-se"></strong></p>
-    <br>
-    <button class="step-btn" onclick="catReset()">Retake</button>
-  </div>
-</div>
-</section>
-
-<!-- 8. Demo Respondents -->
-<section id="demos">
-<h2>Demo Respondents</h2>
-<p>Three simulated respondents with true theta = -1.5 (progressive), 0.0 (moderate), and +1.5 (conservative) illustrate how the CAT adapts to different ideology profiles. Responses at each step are drawn from the calibrated 2PL model.</p>
-
-<div class="tab-bar">
-  <button class="tab-btn active" onclick="setDemoTab('progressive',this)">Progressive (theta = -1.5)</button>
-  <button class="tab-btn" onclick="setDemoTab('moderate',this)">Moderate (theta = 0.0)</button>
-  <button class="tab-btn" onclick="setDemoTab('conservative',this)">Conservative (theta = +1.5)</button>
-</div>
-
-{% for label in ['progressive', 'moderate', 'conservative'] %}
-<div class="tab-panel {% if label == 'progressive' %}active{% endif %}" id="demo-tab-{{ label }}">
-  <div class="demo-summary" id="demo-summary-{{ label }}"></div>
-  <div class="step-nav">
-    <button class="step-btn" id="demo-prev-{{ label }}" onclick="demoNav('{{ label }}',-1)" disabled>Prev</button>
-    <button class="step-btn" id="demo-next-{{ label }}" onclick="demoNav('{{ label }}',+1)">Next</button>
-    <span class="step-indicator" id="demo-indicator-{{ label }}">Step 1</span>
-  </div>
-  <div class="step-card" id="demo-card-{{ label }}"></div>
-  <div class="plot-row" style="margin-top:0.8rem;">
-    <div id="demo-icc-{{ label }}" class="plot"></div>
-    <div id="demo-iic-{{ label }}" class="plot"></div>
-  </div>
-</div>
-{% endfor %}
-</section>
-
-<!-- 9. Conclusion -->
+<!-- 7. Conclusion -->
 <section id="conclusion">
 <h2>Conclusion</h2>
 <h3>Limitations</h3>
@@ -385,6 +444,8 @@ tr:hover td{background:var(--accent-bg);}
   <li>Self-contained HTML with no server required inlining all Plotly figure data, demo step data, and calibrated parameters, making the file large but fully portable.</li>
 </ul>
 </section>
+
+</div><!-- /top-panel-overview -->
 
 </div><!-- .page -->
 
@@ -449,9 +510,10 @@ function reRenderStaticPlots(){
   renderFig('plot-item-fit', _itemFitFig);
 }
 
+// Top-tab panels render lazily on first activation (see setTopTab). The CAT tab
+// is active by default and has no plots to draw until the user clicks Start Test.
 document.addEventListener('DOMContentLoaded', () => {
-  reRenderStaticPlots();
-  initDemos();
+  // no-op
 });
 
 // ── Table sort ─────────────────────────────────────────────────────────────
@@ -766,12 +828,45 @@ function demoNav(label, dir){
 }
 
 function setDemoTab(label, btn){
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  // Scope to the demo tab bar so top-level tabs are not affected.
+  const bar = btn.parentElement;
+  bar.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  const section = bar.parentElement;
+  section.querySelectorAll(':scope > .tab-panel').forEach(p=>p.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('demo-tab-'+label).classList.add('active');
   // Re-render plots now that the container is visible (Plotly renders at 0x0 in display:none)
   renderDemoStep(label, demoState[label]);
+}
+
+// ── Top-level tabs (CAT / Demos / Overview) ────────────────────────────────
+let _demosInitialized = false;
+
+function setTopTab(name, btn){
+  document.querySelectorAll('.top-tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.top-tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('top-panel-'+name).classList.add('active');
+
+  // Render plots now that the target panel is visible. Plotly renders at 0x0 in display:none.
+  if(name==='overview'){
+    reRenderStaticPlots();
+  } else if(name==='demos'){
+    if(!_demosInitialized){
+      initDemos();
+      _demosInitialized = true;
+    } else {
+      // Re-render only the active demo sub-tab (preserve step state).
+      for(const label of ['progressive','moderate','conservative']){
+        if(document.getElementById('demo-tab-'+label).classList.contains('active')){
+          renderDemoStep(label, demoState[label]);
+          break;
+        }
+      }
+    }
+  } else if(name==='cat' && catState.currentItem && !catState.done){
+    renderCatPlots(catState.currentItem);
+  }
 }
 </script>
 </body>
