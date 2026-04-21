@@ -1,10 +1,10 @@
 item_number,subdomain,contrast_note,a_true,b_true
 1,Taxation and wealth inequality,Medium,1.883538467978349,0.37238107795390857
-2,Taxation and wealth inequality,More extreme,1.4144298156528734,-1.7740077859473682
+2,Taxation and wealth inequality,More extreme,1.4144298156528734,-1.774007785947368
 3,Taxation and wealth inequality,Medium,2.0020370878759355,0.16291267906907597
-4,Taxation and wealth inequality,Medium,1.7763152406831098,-0.18522985301743444
+4,Taxation and wealth inequality,Medium,1.7763152406831095,-0.18522985301743444
 5,Taxation and wealth inequality,Moderate,0.9318482870427094,0.734777905637904
-6,Government spending and public debt,Medium,2.1658712922914587,0.09473567954214285
+6,Government spending and public debt,Medium,2.1658712922914582,0.09473567954214285
 7,Government spending and public debt,Medium,1.8655955827864943,-0.06496075266773582
 8,Government spending and public debt,Moderate,1.9004900273877354,0.7378524631129668
 9,Government spending and public debt,Medium,0.9793590857457642,-0.11345467452544206
@@ -15,12 +15,12 @@ item_number,subdomain,contrast_note,a_true,b_true
 14,Labor markets and worker rights,Moderate,1.9518662585791622,-0.6561833206910206
 15,Labor markets and worker rights,Moderate,1.4207798783582637,0.9161299006976005
 16,Healthcare and public services,More extreme,1.1181342104986878,1.6438114859974415
-17,Healthcare and public services,Medium,1.5764187018221687,-0.19373918951508723
+17,Healthcare and public services,Medium,1.576418701822169,-0.19373918951508723
 18,Healthcare and public services,Medium,0.8893441585458455,0.14416405196512205
 19,Healthcare and public services,Medium,1.958683640789615,-0.34124775198748775
-20,Healthcare and public services,Moderate,1.6843301587708908,0.5698762418046549
+20,Healthcare and public services,Moderate,1.684330158770891,0.5698762418046549
 21,Corporate regulation,Medium,1.8613228361195235,0.09995410123755416
-22,Corporate regulation,Medium,1.2963363553818157,-0.003681134875502756
+22,Corporate regulation,Medium,1.296336355381816,-0.003681134875502756
 23,Corporate regulation,Medium,2.158977234152865,0.3934621887510692
 24,Corporate regulation,More extreme,2.050369569851077,-1.5318806852736258
 25,Corporate regulation,Moderate,1.8897368959032668,0.8525826893131676
