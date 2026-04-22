@@ -10,7 +10,8 @@ from pathlib import Path
 BASE = Path(__file__).parent
 DATA = BASE / "data"
 TEMPLATES = BASE / "templates"
-ITEM_BANK = BASE / "data/economic_policy_ideology_item_bank.csv"
+ITEM_BANK_OG = BASE / "data/claude_item_bank.csv"
+ITEM_BANK_PARAMS = BASE / "data/claude_item_bank_params.csv"
 OUTPUT = BASE / "cat_report.html"
 
 sys.path.insert(0, str(BASE))
@@ -22,17 +23,13 @@ SEED = 42
 
 def main():
     print("=== Step 1: Load item bank and simulate ===")
-    sim_params, theta, responses = simulate.run(ITEM_BANK, DATA)
+    item_bank_params, theta, responses = simulate.run(ITEM_BANK_OG, DATA)
 
     print("\n=== Step 2: Calibrate 2PL via girth ===")
-    # Merge calibrated params with full item bank to get text fields
-    item_bank = pd.read_csv(ITEM_BANK)
-    true_params = pd.read_csv(DATA / "true_item_params.csv")
-    calibrated, diagnostics = calibrate.calibrate(responses, DATA, true_params)
+    calibrated, diagnostics = calibrate.calibrate(responses, DATA, item_bank_params)
 
-    # Attach text columns not already in calibrated (subdomain & contrast_note come from true_params)
-    text_cols = ["item_number", "item_stem", "option_A", "option_B"]
-    calibrated = calibrated.merge(item_bank[text_cols], on="item_number", how="left")
+    text_cols = ["item_id", "item_stem", "option_A", "option_B"]
+    calibrated = calibrated.merge(item_bank_params[text_cols], on="item_id", how="left")
 
     print("\n=== Step 3: Psychometrics ===")
     psych = psychometrics.compute_all(responses, theta, calibrated)
@@ -43,8 +40,7 @@ def main():
 
     print("\n=== Step 5: Render HTML report ===")
     report.render_report(
-        item_bank=item_bank,
-        true_params=true_params,
+        item_bank=item_bank_params,
         simulated_data={"theta": theta, "responses": responses},
         calibrated_params=calibrated,
         psychometrics_results=psych,

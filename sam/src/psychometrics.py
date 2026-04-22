@@ -66,9 +66,11 @@ def standardized_residuals(responses: np.ndarray, theta: np.ndarray, a: np.ndarr
 
 
 def compute_all(responses: np.ndarray, theta: np.ndarray, params: pd.DataFrame) -> dict:
+    assert "a_est" in params.columns and "b_est" in params.columns, \
+        "params must contain 'a_est' and 'b_est' columns"
     # Pull item estimates once, then derive reliability, dimensionality, and fit summaries.
-    a = params["a_hat"].values
-    b = params["b_hat"].values
+    a = params["a_est"].values
+    b = params["b_est"].values
 
     alpha = cronbach_alpha(responses)
     itc = item_total_correlation(responses)
