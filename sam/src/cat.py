@@ -13,12 +13,12 @@ def fisher_info(a: float | np.ndarray, b: float | np.ndarray, theta: float) -> f
     return a ** 2 * P * (1.0 - P)
 
 
-def start_item(params: pd.DataFrame) -> pd.Series:
-    # Start near average difficulty, but avoid weakly discriminating items.
-    median_a = params["a_est"].median()
-    high_a = params[params["a_est"] >= median_a]
-    idx = (high_a["b_est"].abs()).idxmin()
-    return params.loc[idx]
+def start_item(params: pd.DataFrame, start_theta: float = 0.0) -> pd.Series:
+    # Start with the item that maximizes Fisher information at start_theta.
+    # This is the same selection rule used for every subsequent step; the only
+    # difference is that no prior responses exist so theta defaults to 0.
+    info_vals = fisher_info(params["a_est"].values, params["b_est"].values, start_theta)
+    return params.iloc[int(np.argmax(info_vals))]
 
 
 def select_next_item(theta: float, administered: list, params: pd.DataFrame):
@@ -87,11 +87,13 @@ def run_cat_demo(true_theta: float, params: pd.DataFrame, rng: np.random.Generat
     current_item = first
 
     # Justification for the first (start) item is about the start rule.
-    # For each subsequent item it is set at the END of the previous iteration,
-    # explaining why THAT item was selected (maximizes info at previous theta_est).
+    # For each subsequent item it is set at the end of the previous iteration,
+    # explaining why that item was selected (maximizes info at previous theta_est).
+    start_info = float(fisher_info(float(first["a_est"]), float(first["b_est"]), 0.0))
     pending_just = (
-        f"Start rule: this item (b = {float(first['b_est']):.3f}) has difficulty "
-        f"nearest to 0 among above-median discrimination items."
+        f"Start rule: this item maximizes Fisher information at theta=0 "
+        f"(a={float(first['a_est']):.3f}, b={float(first['b_est']):.3f}, "
+        f"I(0)={start_info:.4f})."
     )
 
     for _ in range(MAX_ITEMS + 1):
@@ -99,7 +101,7 @@ def run_cat_demo(true_theta: float, params: pd.DataFrame, rng: np.random.Generat
         a = float(current_item["a_est"])
         b = float(current_item["b_est"])
 
-        # justification explaining WHY the current item was chosen
+        # justification explaining why current item was chosen
         current_just = pending_just
 
         logit = a * (true_theta - b)
@@ -110,7 +112,7 @@ def run_cat_demo(true_theta: float, params: pd.DataFrame, rng: np.random.Generat
         responses_dict[item_num] = response
         theta_est, se = update_theta(responses_dict, params)
 
-        # Pre-compute next item selection so we can set the justification for the NEXT step
+        # Pre-compute next item selection so we can set the justification for the next step
         next_item, best_info, candidates, _ = select_next_item(theta_est, administered, params)
         n_remaining = len(candidates)
 
@@ -157,14 +159,57 @@ def run_cat_demo(true_theta: float, params: pd.DataFrame, rng: np.random.Generat
     }
 
 
-def run_demos(params: pd.DataFrame, rng: np.random.Generator) -> dict:
+def run_linear_test(true_theta: float, params: pd.DataFrame,
+                    rng: np.random.Generator, n_items: int = None) -> dict:
+    """Non-adaptive comparison: administer items in item_id order, recording
+    the SE trajectory after each item. Uses the same calibrated parameters
+    and response model as run_cat_demo, so the comparison is apples-to-apples;
+    only the item ordering policy differs.
+    """
+    ordered = params.sort_values("item_id").reset_index(drop=True)
+    if n_items is None:
+        n_items = len(ordered)
+    responses_dict: dict = {}
+    trajectory = []
+    for step in range(n_items):
+        row = ordered.iloc[step]
+        item_id = int(row["item_id"])
+        a = float(row["a_est"])
+        b = float(row["b_est"])
+        P = 1.0 / (1.0 + np.exp(-a * (true_theta - b)))
+        response = int(rng.binomial(1, P))
+        responses_dict[item_id] = response
+        theta_est, se = update_theta(responses_dict, params)
+        trajectory.append({"step": step + 1, "theta_est": float(theta_est),
+                           "se": float(se), "item_id": item_id})
+    return {"true_theta": float(true_theta), "trajectory": trajectory}
+
+
+def run_demos(params: pd.DataFrame, base_seed: int = 265) -> dict:
+    """Run progressive / moderate / conservative demos with independent,
+    deterministic per respondent and per policy (adaptive vs linear).
+    Isolation matters because the linear comparison must not perturb the
+    CAT's sequence of Bernoulli draws, and each demo's stochastic path
+    must be reproducible from the seed alone.
+    """
     demos = {}
-    for label, theta in [("progressive", -1.5), ("moderate", 0.0), ("conservative", 1.5)]:
+    schedule = [("progressive", -1.5, 0),
+                ("moderate",     0.0, 1),
+                ("conservative", 1.5, 2)]
+    for label, theta, offset in schedule:
         print(f"  Running demo: {label} (true theta={theta})")
-        demos[label] = run_cat_demo(theta, params, rng)
+        rng_cat = np.random.default_rng(base_seed + offset * 2)
+        rng_lin = np.random.default_rng(base_seed + offset * 2 + 1)
+        demos[label] = run_cat_demo(theta, params, rng_cat)
+        demos[label]["linear"] = run_linear_test(theta, params, rng_lin, n_items=MAX_ITEMS)
         d = demos[label]
+        linear_final_se = d["linear"]["trajectory"][-1]["se"]
         print(
-            f"    Final theta={d['final_theta']:.3f}, SE={d['final_se']:.3f}, "
+            f"    CAT: theta={d['final_theta']:.3f}, SE={d['final_se']:.3f}, "
             f"items={d['n_items']}, stop={d['stopped_by']}"
+        )
+        print(
+            f"    Linear (same n): final SE={linear_final_se:.3f} "
+            f"(adaptive advantage = {linear_final_se - d['final_se']:+.3f})"
         )
     return demos

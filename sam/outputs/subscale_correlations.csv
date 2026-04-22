@@ -1,7 +1,7 @@
 ,Taxation & Wealth Inequality,Government Spending & Debt,Labor Markets & Worker Rights,Healthcare & Public Services,Corporate Regulation,Trade & Economic Nationalism
-Taxation & Wealth Inequality,1.0,0.436,0.519,0.472,0.5,0.415
-Government Spending & Debt,0.436,1.0,0.481,0.521,0.539,0.459
-Labor Markets & Worker Rights,0.519,0.481,1.0,0.471,0.575,0.459
-Healthcare & Public Services,0.472,0.521,0.471,1.0,0.521,0.431
-Corporate Regulation,0.5,0.539,0.575,0.521,1.0,0.459
-Trade & Economic Nationalism,0.415,0.459,0.459,0.431,0.459,1.0
+Taxation & Wealth Inequality,1.0,0.499,0.567,0.448,0.553,0.5
+Government Spending & Debt,0.499,1.0,0.511,0.423,0.555,0.468
+Labor Markets & Worker Rights,0.567,0.511,1.0,0.491,0.549,0.443
+Healthcare & Public Services,0.448,0.423,0.491,1.0,0.491,0.365
+Corporate Regulation,0.553,0.555,0.549,0.491,1.0,0.535
+Trade & Economic Nationalism,0.5,0.468,0.443,0.365,0.535,1.0

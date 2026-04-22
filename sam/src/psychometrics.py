@@ -57,12 +57,33 @@ def icc_curve(a: float, b: float, theta_range: np.ndarray) -> np.ndarray:
     return 1.0 / (1.0 + np.exp(-a * (theta_range - b)))
 
 
-def standardized_residuals(responses: np.ndarray, theta: np.ndarray, a: np.ndarray, b: np.ndarray) -> np.ndarray:
+def infit_msq(responses: np.ndarray, theta: np.ndarray,
+              a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    """Information-weighted mean-square fit statistic per item (infit MSQ).
+
+    For each item j: MSQ_j = Sum_i (x_ij - P_ij)^2 / Sum_i P_ij(1-P_ij).
+    Expected value is 1.0 under correct model fit. Values outside [0.7, 1.3]
+    flag items that are under- or over-fitting.
+    """
     logit = a[np.newaxis, :] * (theta[:, np.newaxis] - b[np.newaxis, :])
     P = 1.0 / (1.0 + np.exp(-logit))
-    resid = responses - P
-    denom = np.sqrt(P * (1.0 - P) + 1e-8)
-    return np.mean(resid / denom, axis=0)
+    W = P * (1.0 - P)
+    resid_sq = (responses - P) ** 2
+    return np.sum(resid_sq, axis=0) / np.maximum(np.sum(W, axis=0), 1e-8)
+
+
+def outfit_msq(responses: np.ndarray, theta: np.ndarray,
+               a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    """Unweighted mean-square fit statistic per item (outfit MSQ).
+
+    MSQ_j = mean_i [ (x_ij - P_ij)^2 / (P_ij(1-P_ij)) ].
+    Same interpretation as infit but more sensitive to outlying responses.
+    """
+    logit = a[np.newaxis, :] * (theta[:, np.newaxis] - b[np.newaxis, :])
+    P = 1.0 / (1.0 + np.exp(-logit))
+    W = P * (1.0 - P)
+    z_sq = (responses - P) ** 2 / np.maximum(W, 1e-8)
+    return z_sq.mean(axis=0)
 
 
 def compute_all(responses: np.ndarray, theta: np.ndarray, params: pd.DataFrame) -> dict:
@@ -79,13 +100,16 @@ def compute_all(responses: np.ndarray, theta: np.ndarray, params: pd.DataFrame) 
 
     theta_range = np.linspace(-4.0, 4.0, 200)
     tif = test_information_function(a, b, theta_range)
-    std_res = standardized_residuals(responses, theta, a, b)
+    infit = infit_msq(responses, theta, a, b)
+    outfit = outfit_msq(responses, theta, a, b)
 
     print(f"  Cronbach alpha = {alpha:.3f}")
     print(f"  Marginal reliability = {mr:.3f}")
     ev = eigenvalues
     ratio = float(ev[0] / ev[1]) if ev[1] > 0 else float("inf")
     print(f"  Eigenvalue ratio (1st/2nd) = {ratio:.2f}")
+    n_misfit = int(((infit < 0.7) | (infit > 1.3)).sum())
+    print(f"  Items with infit MSQ outside [0.7, 1.3]: {n_misfit}/{len(infit)}")
 
     return {
         "alpha": alpha,
@@ -94,5 +118,6 @@ def compute_all(responses: np.ndarray, theta: np.ndarray, params: pd.DataFrame) 
         "eigenvalues": eigenvalues,
         "tif": tif,
         "theta_range": theta_range,
-        "std_residuals": std_res,
+        "infit_msq": infit,
+        "outfit_msq": outfit,
     }

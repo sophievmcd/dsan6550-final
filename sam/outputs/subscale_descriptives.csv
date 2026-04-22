@@ -1,7 +1,7 @@
-category,N,Min,Max,Mean,Median,SD,Skewness,Pct_0,Pct_5,Cor_Theta
-Taxation & Wealth Inequality,500,0,5,3.328,4.0,1.282,-0.524,2.6,19.2,0.653
-Government Spending & Debt,500,0,5,2.31,2.0,1.367,0.227,9.2,6.0,0.686
-Labor Markets & Worker Rights,500,0,5,3.104,3.0,1.433,0.073,5.6,16.4,0.713
-Healthcare & Public Services,500,0,5,3.006,3.0,1.264,0.005,2.4,11.6,0.672
-Corporate Regulation,500,0,5,2.714,3.0,1.451,-0.197,10.2,12.0,0.712
-Trade & Economic Nationalism,500,0,5,2.084,2.0,1.357,0.062,12.0,5.0,0.658
+category,N,Min,Max,Mean,Median,SD,Skewness,Cor_Theta
+Taxation & Wealth Inequality,500,0,5,3.32,4.0,1.323,-0.514,0.713
+Government Spending & Debt,500,0,5,2.258,2.0,1.432,0.18,0.694
+Labor Markets & Worker Rights,500,0,5,3.134,3.0,1.401,0.096,0.715
+Healthcare & Public Services,500,0,5,2.962,3.0,1.279,-0.03,0.628
+Corporate Regulation,500,0,5,2.696,3.0,1.491,-0.204,0.741
+Trade & Economic Nationalism,500,0,5,2.07,2.0,1.357,0.052,0.669

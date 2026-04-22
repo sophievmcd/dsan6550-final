@@ -1,14 +1,46 @@
+"""
+report.py — assemble the self-contained HTML report.
+
+All figures are serialized to JSON and embedded in the template; Plotly is
+loaded from CDN. No external files are referenced after the HTML is written.
+"""
+
 import json
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.io as pio
-from pathlib import Path
+from plotly.subplots import make_subplots
 from jinja2 import Environment, FileSystemLoader
 
-# Build the final HTML report by packaging analysis outputs into Plotly/Jinja inputs.
+CATEGORIES = [
+    "Taxation & Wealth Inequality",
+    "Government Spending & Debt",
+    "Labor Markets & Worker Rights",
+    "Healthcare & Public Services",
+    "Corporate Regulation",
+    "Trade & Economic Nationalism",
+]
 
-# Plotly helpers
+CAT_COLORS = {
+    "Taxation & Wealth Inequality":  "#185FA5",
+    "Government Spending & Debt":    "#0F6E56",
+    "Labor Markets & Worker Rights": "#854F0B",
+    "Healthcare & Public Services":  "#993556",
+    "Corporate Regulation":          "#533AB7",
+    "Trade & Economic Nationalism":  "#A32D2D",
+}
+
+SHORT_LABELS = {
+    "Taxation & Wealth Inequality":  "Taxation",
+    "Government Spending & Debt":    "Gov Spending",
+    "Labor Markets & Worker Rights": "Labor",
+    "Healthcare & Public Services":  "Healthcare",
+    "Corporate Regulation":          "Corp Reg",
+    "Trade & Economic Nationalism":  "Trade",
+}
+
 _LAYOUT = dict(
     paper_bgcolor="rgba(0,0,0,0)",
     plot_bgcolor="rgba(0,0,0,0)",
@@ -22,10 +54,13 @@ def _fig_json(fig: go.Figure) -> dict:
 
 
 def _theta_histogram(theta: np.ndarray) -> dict:
-    fig = go.Figure(go.Histogram(x=theta, nbinsx=30, marker_color="#555"))
+    # Pass Python lists, not numpy arrays. Plotly.py >=6 serializes ndarrays
+    # as binary-buffer objects that older Plotly.js CDN builds (< 2.35) do not
+    # decode, causing the plot to render with empty axes.
+    fig = go.Figure(go.Histogram(x=theta.tolist(), nbinsx=30, marker_color="#555"))
     fig.update_layout(
-        title="True Theta Distribution (N=500)",
-        xaxis_title="Theta",
+        title="True theta Distribution (N=500)",
+        xaxis_title="theta",
         yaxis_title="Count",
         **_LAYOUT,
     )
@@ -33,7 +68,7 @@ def _theta_histogram(theta: np.ndarray) -> dict:
 
 
 def _response_rate_bar(responses: np.ndarray, item_ids) -> dict:
-    rates = responses.mean(axis=0)
+    rates = responses.mean(axis=0).tolist()
     labels = [f"Item {n}" for n in item_ids]
     fig = go.Figure(go.Bar(x=labels, y=rates, marker_color="#555"))
     fig.update_layout(
@@ -46,7 +81,7 @@ def _response_rate_bar(responses: np.ndarray, item_ids) -> dict:
     return _fig_json(fig)
 
 
-def _recovery_scatter(a_true, a_est, b_true, b_est, r_a, r_b) -> tuple:
+def _recovery_scatter_figs(a_true, a_est, b_true, b_est, r_a, r_b) -> tuple:
     def _scatter(true_v, hat_v, label, r):
         lo = min(float(true_v.min()), float(hat_v.min())) - 0.1
         hi = max(float(true_v.max()), float(hat_v.max())) + 0.1
@@ -68,6 +103,29 @@ def _recovery_scatter(a_true, a_est, b_true, b_est, r_a, r_b) -> tuple:
         return _fig_json(fig)
 
     return _scatter(a_true, a_est, "a", r_a), _scatter(b_true, b_est, "b", r_b)
+
+
+def _theta_recovery_fig(theta_true: np.ndarray, theta_eap: np.ndarray) -> dict:
+    lo = min(float(theta_true.min()), float(theta_eap.min())) - 0.2
+    hi = max(float(theta_true.max()), float(theta_eap.max())) + 0.2
+    r = float(np.corrcoef(theta_true, theta_eap)[0, 1])
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=theta_true.tolist(), y=theta_eap.tolist(), mode="markers",
+        marker=dict(color="#378ADD", size=6, opacity=0.45),
+        name="respondents",
+    ))
+    fig.add_trace(go.Scatter(
+        x=[lo, hi], y=[lo, hi], mode="lines",
+        line=dict(color="#aaa", dash="dash"), showlegend=False,
+    ))
+    fig.update_layout(
+        title=f"Theta Recovery: true vs EAP (r = {r:.3f})",
+        xaxis_title="True theta",
+        yaxis_title="Estimated theta (EAP)",
+        **_LAYOUT,
+    )
+    return _fig_json(fig)
 
 
 def _scree_plot(eigenvalues: np.ndarray) -> dict:
@@ -97,50 +155,135 @@ def _tif_plot(theta_range: np.ndarray, tif: np.ndarray) -> dict:
     ))
     fig.update_layout(
         title="Test Information Function",
-        xaxis_title="Theta",
+        xaxis_title="theta",
         yaxis_title="Information",
         **_LAYOUT,
     )
     return _fig_json(fig)
 
 
-def _item_fit_bar(item_ids, std_res: np.ndarray) -> dict:
+def _item_fit_bar(item_ids, infit: np.ndarray) -> dict:
     labels = [f"Item {n}" for n in item_ids]
-    colors = ["#d62728" if abs(r) > 1.96 else "#555" for r in std_res]
-    fig = go.Figure(go.Bar(x=labels, y=std_res.tolist(), marker_color=colors))
-    fig.add_hline(y=1.96, line_dash="dash", line_color="#aaa")
-    fig.add_hline(y=-1.96, line_dash="dash", line_color="#aaa")
+    colors = ["#d62728" if (v < 0.7 or v > 1.3) else "#555" for v in infit]
+    fig = go.Figure(go.Bar(x=labels, y=infit.tolist(), marker_color=colors))
+    fig.add_hline(y=1.0, line_dash="solid", line_color="#888",
+                  annotation_text="expected value", annotation_position="top left")
+    fig.add_hline(y=1.3, line_dash="dash", line_color="#aaa")
+    fig.add_hline(y=0.7, line_dash="dash", line_color="#aaa")
     fig.update_layout(
-        title="Standardized Residuals (Item Fit)",
+        title="Infit Mean-Square (by Item)",
         xaxis_title="Item",
-        yaxis_title="Std. Residual",
+        yaxis_title="Infit MSQ",
         xaxis_tickangle=-45,
         **_LAYOUT,
     )
     return _fig_json(fig)
 
 
-# Demo step helpers
+def _icc_grid_fig(recovery: pd.DataFrame) -> dict:
+    n_items = len(recovery)
+    cols = 5
+    rows = (n_items + cols - 1) // cols
+    theta_range = np.linspace(-4, 4, 200)
+    titles = [f"{int(recovery['item_id'].iloc[j])}. {recovery['item_name'].iloc[j]}"
+              for j in range(n_items)]
+    fig = make_subplots(rows=rows, cols=cols, subplot_titles=titles,
+                        horizontal_spacing=0.04, vertical_spacing=0.06)
+    for j in range(n_items):
+        r = j // cols + 1
+        c = j % cols + 1
+        cat = recovery["category"].iloc[j]
+        color = CAT_COLORS[cat]
+        a_t, b_t = float(recovery["a_true"].iloc[j]), float(recovery["b_true"].iloc[j])
+        a_e, b_e = float(recovery["a_est"].iloc[j]), float(recovery["b_est"].iloc[j])
+        p_true = 1.0 / (1.0 + np.exp(-a_t * (theta_range - b_t)))
+        p_est = 1.0 / (1.0 + np.exp(-a_e * (theta_range - b_e)))
+        fig.add_trace(go.Scatter(x=theta_range.tolist(), y=p_true.tolist(),
+                                 mode="lines", line=dict(color=color, width=1.2),
+                                 showlegend=False, hoverinfo="skip"), row=r, col=c)
+        fig.add_trace(go.Scatter(x=theta_range.tolist(), y=p_est.tolist(),
+                                 mode="lines", line=dict(color=color, width=1, dash="dash"),
+                                 showlegend=False, hoverinfo="skip"), row=r, col=c)
+        fig.update_xaxes(range=[-4, 4], tickvals=[-2, 0, 2], row=r, col=c)
+        fig.update_yaxes(range=[-0.05, 1.05], tickvals=[0, 0.5, 1], row=r, col=c)
+    fig.update_layout(
+        title="Item Characteristic Curves - True (solid) vs Estimated (dashed)",
+        height=rows * 150, **_LAYOUT,
+    )
+    for anno in fig["layout"]["annotations"]:
+        anno["font"] = dict(size=9)
+    return _fig_json(fig)
+
+
+def _subscale_tif_fig(recovery: pd.DataFrame) -> dict:
+    theta_range = np.linspace(-4, 4, 200)
+    a_est = recovery["a_est"].values
+    b_est = recovery["b_est"].values
+    cat_idx = {cat: recovery.index[recovery["category"] == cat].tolist()
+               for cat in CATEGORIES}
+    fig = go.Figure()
+    for cat in CATEGORIES:
+        idx = cat_idx[cat]
+        vals = np.array([
+            sum((a_est[j] ** 2) *
+                (1 / (1 + np.exp(-a_est[j] * (th - b_est[j])))) *
+                (1 - 1 / (1 + np.exp(-a_est[j] * (th - b_est[j]))))
+                for j in idx)
+            for th in theta_range
+        ])
+        fig.add_trace(go.Scatter(
+            x=theta_range.tolist(), y=vals.tolist(), mode="lines",
+            name=SHORT_LABELS[cat], line=dict(color=CAT_COLORS[cat], width=1.4),
+        ))
+    fig.update_layout(
+        title="Subscale Test Information Functions",
+        xaxis_title="theta",
+        yaxis_title="Information",
+        legend=dict(orientation="h", yanchor="bottom", y=-0.3),
+        **_LAYOUT,
+    )
+    return _fig_json(fig)
+
+
+def _subscale_corr_fig(responses: np.ndarray, recovery: pd.DataFrame) -> dict:
+    cat_idx = {cat: recovery.index[recovery["category"] == cat].tolist()
+               for cat in CATEGORIES}
+    scores = np.column_stack([responses[:, cat_idx[cat]].sum(axis=1)
+                              for cat in CATEGORIES])
+    corr = np.round(np.corrcoef(scores.T), 3)
+    labels = [SHORT_LABELS[c] for c in CATEGORIES]
+    fig = go.Figure(go.Heatmap(
+        z=corr.tolist(),
+        x=labels, y=labels,
+        colorscale="Blues", zmin=0, zmax=1,
+        text=[[f"{v:.2f}" for v in row] for row in corr],
+        texttemplate="%{text}",
+        colorbar=dict(title="r"),
+    ))
+    fig.update_layout(
+        title="Inter-Subscale Correlations",
+        **_LAYOUT,
+    )
+    return _fig_json(fig)
+
 
 def _build_demo_steps(demo_result: dict) -> list:
     theta_range = np.linspace(-4.0, 4.0, 200).tolist()
     steps = []
     for s in demo_result["history"]:
-        # Precompute ICC/IIC traces so the frontend can render each CAT step
-        # without recomputing.
         a, b, th = s["a"], s["b"], s["theta_est"]
-        logit  = [a * (t - b) for t in theta_range]
-        P_icc  = [1.0 / (1.0 + np.exp(-lv)) for lv in logit]
-        I_iic  = [a ** 2 * p * (1.0 - p) for p in P_icc]
-        P_hat  = float(1.0 / (1.0 + np.exp(-a * (th - b))))
-        I_hat  = float(a ** 2 * P_hat * (1.0 - P_hat))
+        logit = [a * (t - b) for t in theta_range]
+        P_icc = [1.0 / (1.0 + np.exp(-lv)) for lv in logit]
+        I_iic = [a ** 2 * p * (1.0 - p) for p in P_icc]
+        P_hat = float(1.0 / (1.0 + np.exp(-a * (th - b))))
+        I_hat = float(a ** 2 * P_hat * (1.0 - P_hat))
         steps.append({
             "step":           s["step"],
-            "item_id":    s["item_id"],
+            "item_id":        s["item_id"],
             "item_stem":      s["item_stem"],
             "option_A":       s["option_A"],
             "option_B":       s["option_B"],
-            "category":       s["category"], 
+            "category":       s["category"],
             "response":       s["response"],
             "response_label": s["response_label"],
             "theta_est":      round(s["theta_est"], 3),
@@ -157,8 +300,6 @@ def _build_demo_steps(demo_result: dict) -> list:
     return steps
 
 
-# Main render
-
 def render_report(
     item_bank: pd.DataFrame,
     simulated_data: dict,
@@ -169,55 +310,70 @@ def render_report(
     output_path: Path,
     template_dir: Path,
 ):
-    # Convert analysis outputs into plain JSON-friendly structures for the
-    # HTML template. All item metadata is sourced from calibrated_params which
-    # carries the full item bank columns (item_id, item_name, category,
-    # item_stem, option_A, option_B) plus a_true, b_true, a_est, b_est.
-
-    theta     = simulated_data["theta"]
+    theta = simulated_data["theta"]
     responses = simulated_data["responses"]
 
-    hist_fig         = _theta_histogram(theta)
+    hist_fig = _theta_histogram(theta)
     response_rate_fig = _response_rate_bar(responses, calibrated_params["item_id"].values)
 
-    fig_a_recovery, fig_b_recovery = _recovery_scatter(
+    fig_a_recovery, fig_b_recovery = _recovery_scatter_figs(
         calibrated_params["a_true"].values, calibrated_params["a_est"].values,
         calibrated_params["b_true"].values, calibrated_params["b_est"].values,
         diagnostics["r_a"], diagnostics["r_b"],
     )
 
-    scree_fig    = _scree_plot(psychometrics_results["eigenvalues"])
-    tif_fig      = _tif_plot(psychometrics_results["theta_range"], psychometrics_results["tif"])
+    theta_recovery_fig = _theta_recovery_fig(theta, diagnostics["theta_eap"])
+    scree_fig = _scree_plot(psychometrics_results["eigenvalues"])
+    tif_fig = _tif_plot(psychometrics_results["theta_range"], psychometrics_results["tif"])
     item_fit_fig = _item_fit_bar(
         calibrated_params["item_id"].values,
-        psychometrics_results["std_residuals"],
+        psychometrics_results["infit_msq"],
     )
+    icc_grid_fig = _icc_grid_fig(calibrated_params)
+    subscale_tif_fig = _subscale_tif_fig(calibrated_params)
+    subscale_corr_fig = _subscale_corr_fig(responses, calibrated_params)
 
-    # Compact item summary used in the static report table.
+    itc_vals = psychometrics_results["item_total_corr"]
     item_table = []
-    for _, row in calibrated_params.iterrows():
+    for pos, (_, row) in enumerate(calibrated_params.iterrows()):
+        a_est = float(row["a_est"])
+        itc_j = float(itc_vals[pos])
+        # Flag items that contribute little measurement information: weak
+        # discrimination (a_est < 0.7) or weak item-total correlation (< 0.20).
+        weak = (a_est < 0.7) or (itc_j < 0.20)
         item_table.append({
-            "num":      int(row["item_id"]),
-            "category": str(row["category"]),
-            "name":     str(row["item_name"]),
-            "stem":     str(row.get("item_stem", "")),
-            "a_est":    round(float(row["a_est"]), 3),
-            "b_est":    round(float(row["b_est"]), 3),
+            "id":        int(row["item_id"]),
+            "subdomain": str(row["category"]),
+            "disc":      str(row["disc_label"]),
+            "name":      str(row["item_name"]),
+            "stem":      str(row.get("item_stem", "")),
+            "a_est":     round(a_est, 3),
+            "b_est":     round(float(row["b_est"]), 3),
+            "itc":       round(itc_j, 3),
+            "weak":      weak,
         })
 
-    # Demo data powers the interactive CAT walkthrough in the browser.
     demo_js = {}
     for label, result in demos.items():
+        cat_trajectory = [
+            {"step": s["step"], "se": round(s["se"], 3), "theta_est": round(s["theta_est"], 3)}
+            for s in result["history"]
+        ]
+        linear_trajectory = [
+            {"step": s["step"], "se": round(s["se"], 3), "theta_est": round(s["theta_est"], 3)}
+            for s in result["linear"]["trajectory"]
+        ]
         demo_js[label] = {
-            "true_theta":  result["true_theta"],
-            "final_theta": round(result["final_theta"], 3),
-            "final_se":    round(result["final_se"], 3),
-            "n_items":     result["n_items"],
-            "stopped_by":  result["stopped_by"],
-            "steps":       _build_demo_steps(result),
+            "true_theta":         result["true_theta"],
+            "final_theta":        round(result["final_theta"], 3),
+            "final_se":           round(result["final_se"], 3),
+            "n_items":            result["n_items"],
+            "stopped_by":         result["stopped_by"],
+            "steps":              _build_demo_steps(result),
+            "cat_trajectory":     cat_trajectory,
+            "linear_trajectory":  linear_trajectory,
         }
 
-    # Calibrated item metadata passed to the in-browser CAT demo.
     cat_params = []
     for _, row in calibrated_params.iterrows():
         cat_params.append({
@@ -230,13 +386,12 @@ def render_report(
             "b_est":     float(row["b_est"]),
         })
 
-    # Pair item ids with their item-total correlations for template rendering.
     itc_data = list(zip(
         [int(n) for n in calibrated_params["item_id"].tolist()],
         [round(float(v), 3) for v in psychometrics_results["item_total_corr"].tolist()],
     ))
 
-    env      = Environment(loader=FileSystemLoader(str(template_dir)))
+    env = Environment(loader=FileSystemLoader(str(template_dir)))
     template = env.get_template("report.html.j2")
 
     html = template.render(
@@ -245,9 +400,13 @@ def render_report(
         response_rate_fig=json.dumps(response_rate_fig),
         fig_a_recovery=json.dumps(fig_a_recovery),
         fig_b_recovery=json.dumps(fig_b_recovery),
+        theta_recovery_fig=json.dumps(theta_recovery_fig),
         scree_fig=json.dumps(scree_fig),
         tif_fig=json.dumps(tif_fig),
         item_fit_fig=json.dumps(item_fit_fig),
+        icc_grid_fig=json.dumps(icc_grid_fig),
+        subscale_tif_fig=json.dumps(subscale_tif_fig),
+        subscale_corr_fig=json.dumps(subscale_corr_fig),
         alpha=round(float(psychometrics_results["alpha"]), 3),
         marginal_rel=round(float(psychometrics_results["marginal_reliability"]), 3),
         r_a=round(diagnostics["r_a"], 3),

@@ -190,16 +190,16 @@ tr:hover td{background:var(--accent-bg);}
 
 <section id="cat-intro">
 <h1>Take the CAT</h1>
-<p>This <strong>Computerized Adaptive Test</strong> measures your position on economic policy ideology on a single progressive &harr; conservative dimension. After each answer, the test estimates your ideology and selects the next item to be maximally informative for you — so the test adapts as you go.</p>
+<p>This <strong>Computerized Adaptive Test</strong> measures your position on economic policy ideology on a single progressive &harr; conservative dimension. After each answer, the test estimates your ideology and selects the next item to be maximally informative for you.</p>
 <div class="tab-intro">
 <strong>How to take the test</strong>
 <ol>
-  <li>Click <strong>Start Test</strong> below.</li>
-  <li>For each question, click option A or option B — whichever best reflects your view.</li>
+  <li>Click <strong>Start Test</strong> button below.</li>
+  <li>For each question, click option A or option B, whichever best reflects your view.</li>
   <li>The test stops automatically when measurement precision is sufficient (SE &lt; 0.30) or after 20 items.</li>
-  <li>Your final ideology estimate and a short verbal interpretation will appear at the end.</li>
+  <li>Your final ideology estimate will appear at the end of the test.</li>
 </ol>
-<p style="margin-top:0.6rem;margin-bottom:0;">See the <strong>Overview</strong> tab for the construct, item bank, and full methodology.</p>
+<p style="margin-top:0.6rem;margin-bottom:0;">See the <strong>Overview</strong> tab for the construct, item bank, methodology, and insights.</p>
 </div>
 </section>
 
@@ -251,13 +251,13 @@ tr:hover td{background:var(--accent-bg);}
 
 <section id="demos-intro">
 <h1>Demo Respondents</h1>
-<p><strong>Purpose.</strong> These three walkthroughs illustrate how the CAT adapts to different ideology profiles. Responses at each step are drawn from the calibrated 2PL model — no real person takes the test; the simulated respondent answers probabilistically according to their true theta.</p>
+<p><strong>Purpose.</strong> These three walkthroughs illustrate how the CAT adapts to different ideology profiles. Responses at each step are drawn from the calibrated 2PL model. No real person takes the test; the simulated respondent answers probabilistically according to their true theta.</p>
 <div class="tab-intro">
 <strong>Specifications &amp; what each panel shows</strong>
 <ul style="margin:0.4rem 0 0 1.4rem;">
-  <li><strong>Progressive</strong> (true theta = -1.5) — strongly progressive profile; the CAT should converge to a negative theta_hat.</li>
-  <li><strong>Moderate</strong> (true theta = 0.0) — centrist profile; typically reaches SE &lt; 0.30 in the fewest items.</li>
-  <li><strong>Conservative</strong> (true theta = +1.5) — strongly conservative profile; the CAT should converge to a positive theta_hat.</li>
+  <li><strong>Progressive</strong> (true theta = -1.5): strongly progressive profile; the CAT should converge to a negative theta_hat.</li>
+  <li><strong>Moderate</strong> (true theta = 0.0): centrist profile; typically reaches SE &lt; 0.30 in the fewest items.</li>
+  <li><strong>Conservative</strong> (true theta = +1.5): strongly conservative profile; the CAT should converge to a positive theta_hat.</li>
 </ul>
 <p style="margin-top:0.6rem;margin-bottom:0;">Each demo's summary row lists true theta, final theta_hat, final SE, number of items administered, and stop reason. Use <em>Prev</em> / <em>Next</em> to step through each item and see the item stem, response, updated theta_hat and SE, ICC, IIC, and the selection justification.</p>
 </div>
@@ -283,6 +283,9 @@ tr:hover td{background:var(--accent-bg);}
     <div id="demo-icc-{{ label }}" class="plot"></div>
     <div id="demo-iic-{{ label }}" class="plot"></div>
   </div>
+  <h3 style="margin-top:1.6rem;">Adaptive vs. Linear Test: SE Trajectory</h3>
+  <p style="font-size:0.88rem;color:var(--subtle);margin-bottom:0.6rem;">Both tests use the same item pool, the same calibrated parameters, and the same respondent's true theta; only the item selection policy differs. The adaptive curve (solid) picks the most informative remaining item at each step; the linear curve (dashed) administers items in fixed ID order. Gap between the two curves at any n quantifies the CAT's efficiency advantage.</p>
+  <div id="demo-trajectory-{{ label }}" class="plot" style="height:320px"></div>
 </div>
 {% endfor %}
 </section>
@@ -298,10 +301,10 @@ tr:hover td{background:var(--accent-bg);}
 <!-- 1. Overview -->
 <section id="overview">
 <h1>Economic Policy Ideology CAT</h1>
-<p>This report documents a complete Computerized Adaptive Test (CAT) pipeline built around a 30-item forced-choice item bank measuring a single latent dimension of <strong>economic policy ideology</strong> (progressive &harr; conservative). Items were generated with AI assistance and span six subdomains: taxation, government spending, labor markets, healthcare, corporate regulation, and trade.</p>
+<p>This report documents a complete Computerized Adaptive Test (CAT) pipeline built around a 30 item bank measuring a single latent dimension of <strong>economic policy ideology</strong> (progressive &harr; conservative). Items were generated with Claude assistance and span six subdomains: taxation, government spending, labor markets, healthcare, corporate regulation, and trade.</p>
 
 <h2>Why 2PL?</h2>
-<p>Each item presents two substantively grounded policy positions (option A = progressive, option B = conservative). Because neither option is "correct," there is no guessing parameter, making the three-parameter logistic model inappropriate. The two-parameter logistic (2PL) model captures variation in both the <em>location</em> (ideological threshold, parameter b) and <em>slope</em> (discriminating power, parameter a) of each item's characteristic curve.</p>
+<p>Each item presents two substantively grounded policy positions (option A = progressive, option B = conservative). Because neither option is "correct," there is no guessing parameter, making the 3PL model inefficient. The two-parameter logistic (2PL) model captures variation in both the <em>location</em> (ideological threshold, parameter b) and <em>slope</em> (discriminating power, parameter a) of each item's characteristic curve.</p>
 
 <h2>Target population</h2>
 <p>English-speaking adults with an opinion on national economic policy. The latent trait theta is standardized so that theta = 0 corresponds to the ideological center; negative values indicate progressive orientation and positive values indicate conservative orientation.</p>
@@ -310,28 +313,30 @@ tr:hover td{background:var(--accent-bg);}
 <!-- 2. Item Bank -->
 <section id="items">
 <h2>Item Bank</h2>
-<p>The pool contains 30 forced-choice items across six subdomains. Calibrated discrimination (a) and difficulty (b) parameters are shown below. Items are sortable by clicking the column headers.</p>
+<p>The pool contains 30 item questions across six subdomains. Calibrated discrimination (a) and difficulty (b) parameters, and the item-total correlation (ITC), are shown below. Items are sortable by clicking the column headers. Rows marked with a red asterisk contribute weakly to measurement (<code>a &lt; 0.7</code> or ITC <code>&lt; 0.20</code>) and would be candidates for revision or removal in a production bank.</p>
 <div class="table-wrap">
 <table id="item-table">
   <thead>
     <tr>
       <th onclick="sortTable('item-table',0)" style="cursor:pointer"># &#x25B2;&#x25BC;</th>
       <th onclick="sortTable('item-table',1)" style="cursor:pointer">Subdomain &#x25B2;&#x25BC;</th>
-      <th onclick="sortTable('item-table',2)" style="cursor:pointer">Contrast &#x25B2;&#x25BC;</th>
+      <th onclick="sortTable('item-table',2)" style="cursor:pointer">Discrimination &#x25B2;&#x25BC;</th>
       <th>Item Stem (abbreviated)</th>
       <th onclick="sortTable('item-table',4)" style="cursor:pointer">a &#x25B2;&#x25BC;</th>
       <th onclick="sortTable('item-table',5)" style="cursor:pointer">b &#x25B2;&#x25BC;</th>
+      <th onclick="sortTable('item-table',6)" style="cursor:pointer">ITC &#x25B2;&#x25BC;</th>
     </tr>
   </thead>
   <tbody>
   {% for row in item_table %}
-  <tr>
-    <td>{{ row.num }}</td>
+  <tr{% if row.weak %} style="background:rgba(214,39,40,0.08)"{% endif %}>
+    <td>{{ row.id }}{% if row.weak %} <span style="color:#d62728" title="weak item: low a or low ITC">*</span>{% endif %}</td>
     <td>{{ row.subdomain }}</td>
-    <td>{{ row.contrast }}</td>
+    <td>{{ row.disc }}</td>
     <td title="{{ row.stem }}">{{ row.stem[:80] }}{% if row.stem|length > 80 %}...{% endif %}</td>
-    <td>{{ row.a_hat }}</td>
-    <td>{{ row.b_hat }}</td>
+    <td>{{ row.a_est }}</td>
+    <td>{{ row.b_est }}</td>
+    <td>{{ row.itc }}</td>
   </tr>
   {% endfor %}
   </tbody>
@@ -342,7 +347,7 @@ tr:hover td{background:var(--accent-bg);}
 <!-- 3. Simulation -->
 <section id="simulation">
 <h2>Data Simulation</h2>
-<p>Five hundred respondents were drawn with theta ~ N(0, 1). For each person-item pair, the 2PL model determined P(B=1 | theta), and a binary response was Bernoulli-sampled. True item parameters were assigned deterministically from subdomain difficulty labels: Medium |b| ~ U(0, 0.5), Moderate |b| ~ U(0.5, 1.0), More extreme |b| ~ U(1.0, 1.8); sign alternated within each subdomain to spread information across the theta range. Discrimination a ~ U(0.8, 2.2). All draws used a fixed seed (42) for reproducibility.</p>
+<p>Five hundred respondents' theta values were drawn from a t(df=10) distribution rescaled to unit variance, heavier tails than N(0, 1) so that items with |b| &gt; 1.2 receive adequate coverage. For each person-item pair, the 2PL model determined P(B=1 | theta), and a binary response was Bernoulli-sampled from that probability (not a uniform coin flip), satisfying the "not fully random" hint in the project details. True item parameters were based on content review of each item's <code>disc_label</code> (High / Moderate / Low) and its ideological direction.</p>
 
 <div class="plot-row">
   <div id="plot-hist" class="plot"></div>
@@ -353,7 +358,8 @@ tr:hover td{background:var(--accent-bg);}
 <!-- 4. Calibration -->
 <section id="calibration">
 <h2>Calibration</h2>
-<p>Item parameters were estimated via Marginal Maximum Likelihood EM using the <code>girth</code> library (<code>twopl_mml</code>). The algorithm marginalizes over theta using Gauss-Hermite quadrature and iterates until convergence. The plots below compare true (simulated) parameters to recovered estimates, validating the calibration.</p>
+<p>Item parameters were estimated via Marginal Maximum Likelihood EM using the <code>girth</code> library (<code>twopl_mml</code>). The algorithm marginalizes over theta using Gauss-Hermite quadrature and iterates until convergence. The plots below compare the generating ("true") parameters to the MML-recovered estimates.</p>
+<p><strong>Important interpretation note.</strong> Because the simulated responses were produced from the exact 2PL model that is then re-fit during calibration, high recovery correlations demonstrate <em>simulation fidelity</em> (the estimator can invert the generating model) rather than <em>empirical validity</em> (items behaving as 2PL on real human responses).</p>
 
 <div class="stat-grid">
   <div class="stat-box"><div class="stat-val">{{ r_a }}</div><div class="stat-lbl">Pearson r (a)</div></div>
@@ -366,6 +372,10 @@ tr:hover td{background:var(--accent-bg);}
   <div id="plot-recovery-a" class="plot"></div>
   <div id="plot-recovery-b" class="plot"></div>
 </div>
+
+<h3>Theta recovery</h3>
+<p>Each respondent's true theta (used to generate their responses) is compared against their Expected A Posteriori estimate computed from the calibrated item parameters. A high Pearson r and tight scatter around the identity line indicate that the 30-item pool can reliably recover a respondent's latent ideology from their binary responses alone.</p>
+<div id="plot-theta-recovery" class="plot" style="height:380px"></div>
 </section>
 
 <!-- 5. Reliability and Validity -->
@@ -380,7 +390,7 @@ tr:hover td{background:var(--accent-bg);}
 </div>
 
 <h3>Unidimensionality</h3>
-<p>The scree plot below shows eigenvalues of the inter-item Pearson correlation matrix. Clear dominance of the first eigenvalue supports the single-factor assumption required by 2PL. (Top 5 eigenvalues: {{ eigenvalues | join(", ") }}.)</p>
+<p>The scree plot below shows eigenvalues of the inter-item Pearson correlation matrix. Clear dominance of the first eigenvalue supports the single-factor assumption required by 2PL.</p>
 <div id="plot-scree" class="plot"></div>
 
 <h3>Test Information Function</h3>
@@ -404,9 +414,26 @@ tr:hover td{background:var(--accent-bg);}
 </table>
 </div>
 
-<h3>Item Fit (Standardized Residuals)</h3>
-<p>Dashed lines mark the +/- 1.96 threshold (p = 0.05). Items outside the band warrant review.</p>
+<h3>Item Fit (Infit Mean-Square)</h3>
+<p>Infit MSQ is the information weighted mean-square residual per item: MSQ<sub>j</sub> = &Sigma;<sub>i</sub> (x<sub>ij</sub> - P<sub>ij</sub>)<sup>2</sup> / &Sigma;<sub>i</sub> P<sub>ij</sub>(1 - P<sub>ij</sub>). Its expected value under correct 2PL fit is 1.0. Values below 0.7 suggest the item is over-predictable (redundant with others), while values above 1.0 suggest noise or multidimensionality.</p>
 <div id="plot-item-fit" class="plot"></div>
+</section>
+
+<!-- 5b. Validity visuals -->
+<section id="validity-visuals">
+<h2>Item Catalogue and Subscale Structure</h2>
+
+<h3>All 30 Item Characteristic Curves</h3>
+<p>Each panel plots one item's probability of a conservative (B) response as a function of theta. The solid curve uses the true (generating) parameters; the dashed curve uses the calibrated estimates.</p>
+<div id="plot-icc-grid" class="plot" style="height:900px"></div>
+
+<h3>Subscale Test Information Functions</h3>
+<p>Each subscale's five items produce their own TIF. Plotting the six curves together reveals where (on the theta continuum) each policy subdomain carries the most measurement precision. Together they cover the full theta range reasonably evenly, which is what a general-purpose economic ideology test is expected to be.</p>
+<div id="plot-subscale-tif" class="plot" style="height:380px"></div>
+
+<h3>Inter-Subscale Correlations</h3>
+<p>Pearson correlations between the six subscale sum scores (each 0-5). Strong positive correlations indicate a shared underlying factor (support for the unidimensional 2PL model); very high values (r &gt; 0.85) would suggest subscale redundancy.</p>
+<div id="plot-subscale-corr" class="plot" style="height:440px"></div>
 </section>
 
 <!-- 6. CAT Engine -->
@@ -414,13 +441,13 @@ tr:hover td{background:var(--accent-bg);}
 <h2>CAT Engine Design</h2>
 
 <h3>Start rule</h3>
-<p>Begin with the item whose estimated difficulty b_hat is closest to 0 (ideological center) among items with above-median discrimination a_hat. This maximizes initial information for respondents near the population mean.</p>
+<p>Begin with the item that maximizes Fisher information at theta = 0 (the prior mean). This is the same objective used for every subsequent step, the start rule is the step-wise max-information rule evaluated with the initial theta estimate. The program picks the item with the largest a<sup>2</sup>&middot;P(0)&middot;(1 - P(0)) across the item bank .csv file.</p>
 
 <h3>Item selection</h3>
-<p>At each step, compute Fisher information I(theta_hat) = a^2 * P(theta_hat) * (1 - P(theta_hat)) for every unadministered item and select the item with the highest value. Each item may be administered at most once per respondent.</p>
+<p>At each step, the program uses the Fisher information I(theta_hat) = a<sup>2</sup>&middot;P(theta_hat)&middot;(1 - P(theta_hat)) for every unadministered item and select the item with the highest value. Each item may be administered at most once per respondent.</p>
 
 <h3>Theta estimation</h3>
-<p>Theta is estimated by maximum likelihood (bounded Brent's method). When all responses so far are identical (e.g., all B or all A), MLE diverges; in that case, Expected A Posteriori estimation with a N(0, 1) prior is used as a fallback. The standard error is SE = 1 / sqrt(sum of item Fisher information at theta_hat).</p>
+<p>Theta is estimated by maximum likelihood using the Brent's method. When all responses so far are identical (e.g., all B or all A), MLE diverges; in that case, Expected A Posteriori estimation with a N(0, 1) prior is used as a fallback. The standard error is SE = 1 / sqrt(sum of item Fisher information at theta_hat).</p>
 
 <h3>Stop rule</h3>
 <p>Testing stops when SE &lt; 0.30 (measurement precision achieved) or when 20 items have been administered (maximum length), whichever comes first.</p>
@@ -431,17 +458,35 @@ tr:hover td{background:var(--accent-bg);}
 <h2>Conclusion</h2>
 <h3>Limitations</h3>
 <ul style="margin-left:1.5rem;margin-bottom:0.8rem;">
-  <li><strong>Small item bank:</strong> Thirty items is the lower bound for a credible CAT. The item pool is quickly exhausted for extreme respondents who may require many items to reach SE &lt; 0.30.</li>
-  <li><strong>Single dimension:</strong> Economic ideology is multidimensional in practice (e.g., fiscal conservatism vs. social conservatism). The unidimensional 2PL model is an approximation.</li>
-  <li><strong>Simulation assumptions:</strong> True parameters were set manually and responses were drawn from the exact 2PL model. Real response data deviates from this ideal due to acquiescence bias, random responding, and context effects.</li>
-  <li><strong>MLE instability:</strong> Early in the CAT (1-2 items administered) with uniform responses, MLE diverges. The EAP fallback mitigates this but introduces prior dependence.</li>
-  <li><strong>Binary forced choice:</strong> Forced-choice format eliminates acquiescence bias but may frustrate respondents who hold nuanced positions and limits the response scale to a single bit of information per item.</li>
+  <li><strong>Circular validation by construction.</strong> Responses were generated from the 2PL model and then fit with the same 2PL model. The high parameter-recovery correlations (r &gt; 0.95 for both a and b) should be read as simulation-fidelity evidence, not as evidence that the items behave as 2PL on real human respondents.</li>
+  <li><strong>True parameters.</strong> The "true" a and b values were assigned by content review of each item (informed priors, not empirical values). The <code>disc_label</code> column (High / Moderate / Low) is metadata that guided authoring, not a calibrated discrimination.</li>
+  <li><strong>Pool depth.</strong> The CAT draws from 30 items with a max test length of 20, giving a 1.5:1 pool-to-length ratio. Operational CATs typically deploy with 5-10:1 ratios. This cap is why all three demo respondents administer all 20 items without crossing the SE &lt; 0.30 stop threshold. The Adaptive vs. Linear trajectory plots show the CAT still gains precision on every item, but the target is not reachable within the cap.</li>
+  <li><strong>Three low-discrimination items.</strong> Items 19 (Rural broadband access), 20 (Public library expansion), and 30 (Trade-displaced worker aid) have a<sub>true</sub> &le; 0.6 and item-total r &lt; 0.20. They contribute minimal Fisher information and rarely appear in adaptive sessions. In a production bank they would be flagged for revision or removal.</li>
+  <li><strong>Target population is asserted, not piloted.</strong> The construct and the intended audience are theoretical framings. No human pilot has been administered, so construct and content validity remain argued.</li>
+  <li><strong>Single dimension.</strong> Economic ideology is multidimensional in practice (e.g., fiscal vs. regulatory preferences). The first-eigenvalue ratio supports the unidimensional 2PL assumption for this simulated data, but the same analysis on real responses could reveal additional factors.</li>
+  <li><strong>Theta draw shape.</strong> Respondents' theta was drawn from a t(df=10) distribution rescaled to unit variance to improve tail coverage. The mismatch is small and does not visibly perturb recovery, but a full demonstration would use N(0, 1).</li>
+  <li><strong>Binary forced choice.</strong> This format eliminates biases but limits each item to one bit of information and may frustrate respondents holding nuanced positions.</li>
+  <li><strong>MLE instability on uniform responses.</strong> Early in the CAT with all-same responses, the MLE diverges. An EAP fallback with an N(0, 1) prior keeps the theta estimate bounded but introduces prior dependence until mixed responses are observed.</li>
 </ul>
+
 <h3>Challenges encountered</h3>
 <ul style="margin-left:1.5rem;margin-bottom:0.8rem;">
-  <li>Balancing item difficulty across subdomains while maintaining alternating b-parameter signs required careful constraint design.</li>
-  <li>Ensuring the interactive CAT's client-side Newton-Raphson converges reliably required replacing pure gradient descent with a bounded grid-search initialization.</li>
-  <li>Self-contained HTML with no server required inlining all Plotly figure data, demo step data, and calibrated parameters, making the file large but fully portable.</li>
+  <li>Selecting an item-fit statistic that is both interpretable and correct. Averaging raw standardized residuals produces values near zero for any item (positive and negative residuals cancel), so we moved to the information-weighted mean-square (infit MSQ) with the standard 0.7-1.3 band.</li>
+  <li>Packaging the entire pipeline output into a single self-contained HTML meant inlining every Plotly figure, the full calibrated parameter table, and precomputed demo traces, making the file &gt; 1 MB but fully portable and server-less.</li>
+  <li>Demonstrating "adaptive" behavior visibly when the SE target is not reachable within the pool cap: the Adaptive vs. Linear trajectory plot was added so the efficiency advantage can be visible..</li>
+</ul>
+
+<h3>Suggested improvements</h3>
+<ul style="margin-left:1.5rem;margin-bottom:0.8rem;">
+  <li>Expand the bank to 60-120 items, concentrating new items at |theta| &gt; 1 so extreme respondents can reach SE &lt; 0.30 within the cap.</li>
+  <li>Retire or rewrite items 19, 20, and 30 on the basis of low a and low item-total r.</li>
+  <li>Run a small human pilot to obtain real responses and refit the 2PL. Report recovery against the pilot-calibrated parameters as a validity check.</li>
+  <li>Consider exposure control (e.g., Sympson-Hetter) so high-information items at theta ~ 0 are not repeatedly selected in large-scale administration.</li>
+</ul>
+
+<h3>Code</h3>
+<ul style="margin-left:1.5rem;margin-bottom:0.8rem;">
+  <li>Project codebase can be accessed through the following GitHub Link: <a href="https://github.com/sophievmcd/dsan6550-final.git" target="_blank">View on GitHub</a></li>
 </ul>
 </section>
 
@@ -455,9 +500,13 @@ const _histFig = {{ hist_fig | safe }};
 const _responseRateFig = {{ response_rate_fig | safe }};
 const _figARecovery = {{ fig_a_recovery | safe }};
 const _figBRecovery = {{ fig_b_recovery | safe }};
+const _thetaRecoveryFig = {{ theta_recovery_fig | safe }};
 const _screeFig = {{ scree_fig | safe }};
 const _tifFig = {{ tif_fig | safe }};
 const _itemFitFig = {{ item_fit_fig | safe }};
+const _iccGridFig = {{ icc_grid_fig | safe }};
+const _subscaleTifFig = {{ subscale_tif_fig | safe }};
+const _subscaleCorrFig = {{ subscale_corr_fig | safe }};
 const demoData = {{ demo_js | safe }};
 const catItems = {{ cat_params_js | safe }};
 
@@ -505,9 +554,13 @@ function reRenderStaticPlots(){
   renderFig('plot-response-rate', _responseRateFig);
   renderFig('plot-recovery-a', _figARecovery);
   renderFig('plot-recovery-b', _figBRecovery);
+  renderFig('plot-theta-recovery', _thetaRecoveryFig);
   renderFig('plot-scree', _screeFig);
   renderFig('plot-tif', _tifFig);
   renderFig('plot-item-fit', _itemFitFig);
+  renderFig('plot-icc-grid', _iccGridFig);
+  renderFig('plot-subscale-tif', _subscaleTifFig);
+  renderFig('plot-subscale-corr', _subscaleCorrFig);
 }
 
 // Top-tab panels render lazily on first activation (see setTopTab). The CAT tab
@@ -548,8 +601,8 @@ function eapTheta(responses, administered){
   const logLik = grid.map(th=>{
     let ll=0;
     for(const n of administered){
-      const it=catItems.find(x=>x.item_number===n);
-      const logit=it.a_hat*(th-it.b_hat);
+      const it=catItems.find(x=>x.item_id===n);
+      const logit=it.a_est*(th-it.b_est);
       const P=Math.min(Math.max(1/(1+Math.exp(-logit)),1e-8),1-1e-8);
       const r=responses[n];
       ll+=r*Math.log(P)+(1-r)*Math.log(1-P);
@@ -575,8 +628,8 @@ function mleTheta(responses, administered){
   for(const th of g){
     let nll=0;
     for(const n of administered){
-      const it=catItems.find(x=>x.item_number===n);
-      const logit=it.a_hat*(th-it.b_hat);
+      const it=catItems.find(x=>x.item_id===n);
+      const logit=it.a_est*(th-it.b_est);
       const P=Math.min(Math.max(1/(1+Math.exp(-logit)),1e-8),1-1e-8);
       nll-=responses[n]*Math.log(P)+(1-responses[n])*Math.log(1-P);
     }
@@ -586,11 +639,11 @@ function mleTheta(responses, administered){
   for(let i=0;i<60;i++){
     let grad=0,hess=0;
     for(const n of administered){
-      const it=catItems.find(x=>x.item_number===n);
-      const logit=it.a_hat*(th-it.b_hat);
+      const it=catItems.find(x=>x.item_id===n);
+      const logit=it.a_est*(th-it.b_est);
       const P=Math.min(Math.max(1/(1+Math.exp(-logit)),1e-8),1-1e-8);
-      grad+=it.a_hat*(responses[n]-P);
-      hess-=it.a_hat*it.a_hat*P*(1-P);
+      grad+=it.a_est*(responses[n]-P);
+      hess-=it.a_est*it.a_est*P*(1-P);
     }
     if(Math.abs(hess)<1e-10) break;
     const delta=-grad/hess;
@@ -599,8 +652,8 @@ function mleTheta(responses, administered){
   }
   let info=0;
   for(const n of administered){
-    const it=catItems.find(x=>x.item_number===n);
-    info+=fisherInfo(it.a_hat,it.b_hat,th);
+    const it=catItems.find(x=>x.item_id===n);
+    info+=fisherInfo(it.a_est,it.b_est,th);
   }
   return {theta:th, se:1/Math.sqrt(Math.max(info,0.01))};
 }
@@ -612,23 +665,22 @@ function updateTheta(responses, administered){
 }
 
 function selectNext(theta, administered){
-  const rem=catItems.filter(it=>!administered.includes(it.item_number));
+  const rem=catItems.filter(it=>!administered.includes(it.item_id));
   let best=null, bestI=-1;
   for(const it of rem){
-    const info=fisherInfo(it.a_hat,it.b_hat,theta);
+    const info=fisherInfo(it.a_est,it.b_est,theta);
     if(info>bestI){bestI=info;best=it;}
   }
   return best;
 }
 
 function getStartItem(){
-  const as=catItems.map(it=>it.a_hat).sort((a,b)=>a-b);
-  const medA=as[Math.floor(as.length/2)];
-  const highA=catItems.filter(it=>it.a_hat>=medA);
-  let best=null, bestD=Infinity;
-  for(const it of highA){
-    const d=Math.abs(it.b_hat);
-    if(d<bestD){bestD=d;best=it;}
+  // Match the Python start rule: pick the item with the highest Fisher
+  // information at theta=0. No prior responses exist, so theta defaults to 0.
+  let best=null, bestI=-1;
+  for(const it of catItems){
+    const info=fisherInfo(it.a_est, it.b_est, 0);
+    if(info>bestI){bestI=info; best=it;}
   }
   return best;
 }
@@ -643,11 +695,11 @@ function interpretTheta(th){
 
 function renderCatPlots(item){
   const tRange=Array.from({length:200},(_,i)=>-4+8*i/199);
-  const P=tRange.map(t=>1/(1+Math.exp(-item.a_hat*(t-item.b_hat))));
-  const I=P.map((p,i)=>item.a_hat**2*p*(1-p));
+  const P=tRange.map(t=>1/(1+Math.exp(-item.a_est*(t-item.b_est))));
+  const I=P.map((p,i)=>item.a_est**2*p*(1-p));
   const th=catState.theta;
-  const Phat=1/(1+Math.exp(-item.a_hat*(th-item.b_hat)));
-  const Ihat=item.a_hat**2*Phat*(1-Phat);
+  const Phat=1/(1+Math.exp(-item.a_est*(th-item.b_est)));
+  const Ihat=item.a_est**2*Phat*(1-Phat);
   const dark=document.body.classList.contains('dark');
   const fg=dark?'#fff':'#000'; const grid=dark?'#333':'#ddd';
   const base={paper_bgcolor:'rgba(0,0,0,0)',plot_bgcolor:'rgba(0,0,0,0)',
@@ -658,16 +710,16 @@ function renderCatPlots(item){
   Plotly.newPlot('cat-icc',
     [{x:tRange,y:P,mode:'lines',line:{color:fg},name:'ICC'},
      {x:[th],y:[Phat],mode:'markers',marker:{color:'red',size:12},name:'current'}],
-    Object.assign({},base,{title:`ICC: item ${item.item_number}`,
-      xaxis:Object.assign({},base.xaxis,{title:'Theta'}),
+    Object.assign({},base,{title:`ICC: item ${item.item_id}`,
+      xaxis:Object.assign({},base.xaxis,{title:'theta'}),
       yaxis:Object.assign({},base.yaxis,{title:'P(B=1)',range:[0,1]})}),
     _plotConfig);
 
   Plotly.newPlot('cat-iic',
     [{x:tRange,y:I,mode:'lines',line:{color:fg},name:'IIC'},
      {x:[th],y:[Ihat],mode:'markers',marker:{color:'red',size:12},name:'current'}],
-    Object.assign({},base,{title:`IIC: item ${item.item_number}`,
-      xaxis:Object.assign({},base.xaxis,{title:'Theta'}),
+    Object.assign({},base,{title:`IIC: item ${item.item_id}`,
+      xaxis:Object.assign({},base.xaxis,{title:'theta'}),
       yaxis:Object.assign({},base.yaxis,{title:'Information'})}),
     _plotConfig);
 }
@@ -684,7 +736,7 @@ function catStart(){
 }
 
 function showCatQuestion(item){
-  document.getElementById('cat-subdomain').textContent=item.subdomain;
+  document.getElementById('cat-subdomain').textContent=item.category;
   document.getElementById('cat-stem').textContent=item.item_stem;
   document.getElementById('cat-btn-a').textContent='A: '+item.option_A;
   document.getElementById('cat-btn-b').textContent='B: '+item.option_B;
@@ -696,8 +748,8 @@ function showCatQuestion(item){
 function catAnswer(resp){
   if(catState.done) return;
   const item=catState.currentItem;
-  catState.administered.push(item.item_number);
-  catState.responses[item.item_number]=resp;
+  catState.administered.push(item.item_id);
+  catState.responses[item.item_id]=resp;
 
   document.getElementById('cat-btn-a').className='option-btn'+(resp===0?' selected-a':'');
   document.getElementById('cat-btn-b').className='option-btn'+(resp===1?' selected-b':'');
@@ -754,6 +806,11 @@ function catReset(){
 
 // ── Demo respondents ───────────────────────────────────────────────────────
 const demoState = {progressive:0, moderate:0, conservative:0};
+// Tracks which demo sub-tab panels have had their Plotly plots rendered at
+// least once in a VISIBLE container. Rendering into display:none containers
+// produces 0x0 Plotly figures that never resize correctly on later reveal,
+// so we defer the first render until each tab is actually visible.
+const demoRendered = {progressive:false, moderate:false, conservative:false};
 
 function initDemos(){
   for(const label of ['progressive','moderate','conservative']){
@@ -766,11 +823,23 @@ function initDemos(){
       <div><strong>${d.n_items}</strong>Items used</div>
       <div><strong>${d.stopped_by}</strong>Stopped by</div>
     `;
-    renderDemoStep(label, 0);
+    // Only render plots for the currently-visible sub-tab. The others are
+    // rendered lazily the first time the user clicks their button, when the
+    // container actually has a non-zero width.
+    if(document.getElementById('demo-tab-'+label).classList.contains('active')){
+      renderDemoStep(label, 0);
+      demoRendered[label]=true;
+    } else {
+      // Still paint the step card HTML (text content) so it's there when the
+      // tab is revealed; plots are created on first reveal via setDemoTab.
+      paintDemoCard(label, 0);
+    }
   }
 }
 
-function renderDemoStep(label, stepIdx){
+// Paint only the textual step card (no Plotly) — safe to run inside a hidden
+// container. Shared by initDemos (for inactive sub-tabs) and renderDemoStep.
+function paintDemoCard(label, stepIdx){
   const d=demoData[label];
   const s=d.steps[stepIdx];
   demoState[label]=stepIdx;
@@ -780,10 +849,9 @@ function renderDemoStep(label, stepIdx){
   document.getElementById('demo-prev-'+label).disabled=(stepIdx===0);
   document.getElementById('demo-next-'+label).disabled=(stepIdx===d.steps.length-1);
 
-  const card=document.getElementById('demo-card-'+label);
-  card.innerHTML=`
-    <div class="subdomain-tag">${s.subdomain}</div>
-    <div class="step-item-stem"><strong>Item ${s.item_number}:</strong> ${s.item_stem}</div>
+  document.getElementById('demo-card-'+label).innerHTML=`
+    <div class="subdomain-tag">${s.category}</div>
+    <div class="step-item-stem"><strong>Item ${s.item_id}:</strong> ${s.item_stem}</div>
     <div style="font-size:0.85rem;margin-bottom:0.4rem;">
       <span style="color:var(--subtle)">A:</span> ${s.option_A}<br>
       <span style="color:var(--subtle)">B:</span> ${s.option_B}
@@ -791,13 +859,18 @@ function renderDemoStep(label, stepIdx){
     <div class="step-response">Response: <strong>${s.response_label}</strong>
       &nbsp;(${s.response===1?'conservative':'progressive'} option)</div>
     <div class="step-theta">
-      <span>theta_hat = <strong>${s.theta_hat}</strong></span>
+      <span>theta_hat = <strong>${s.theta_est}</strong></span>
       <span>SE = <strong>${s.se}</strong></span>
       <span>a = <strong>${s.a}</strong></span>
       <span>b = <strong>${s.b}</strong></span>
     </div>
     <div class="justification">${s.justification}</div>
   `;
+  return s;
+}
+
+function renderDemoStep(label, stepIdx){
+  const s=paintDemoCard(label, stepIdx);
 
   const dark=document.body.classList.contains('dark');
   const fg=dark?'#fff':'#000'; const grid=dark?'#333':'#ddd';
@@ -808,16 +881,46 @@ function renderDemoStep(label, stepIdx){
 
   Plotly.newPlot('demo-icc-'+label,
     [{x:s.theta_range,y:s.P_icc,mode:'lines',line:{color:fg},name:'ICC'},
-     {x:[s.theta_hat],y:[s.P_hat],mode:'markers',marker:{color:'red',size:12},name:'theta_hat'}],
-    Object.assign({},base,{title:`ICC: item ${s.item_number} (a=${s.a}, b=${s.b})`,
+     {x:[s.theta_est],y:[s.P_hat],mode:'markers',marker:{color:'red',size:12},name:'theta_hat'}],
+    Object.assign({},base,{title:`ICC: item ${s.item_id} (a=${s.a}, b=${s.b})`,
       yaxis:Object.assign({},base.yaxis,{title:'P(B=1)',range:[0,1]})}),
     _plotConfig);
 
   Plotly.newPlot('demo-iic-'+label,
     [{x:s.theta_range,y:s.I_iic,mode:'lines',line:{color:fg},name:'IIC'},
-     {x:[s.theta_hat],y:[s.I_hat],mode:'markers',marker:{color:'red',size:12},name:'theta_hat'}],
-    Object.assign({},base,{title:`IIC: item ${s.item_number}`,
+     {x:[s.theta_est],y:[s.I_hat],mode:'markers',marker:{color:'red',size:12},name:'theta_hat'}],
+    Object.assign({},base,{title:`IIC: item ${s.item_id}`,
       yaxis:Object.assign({},base.yaxis,{title:'Information'})}),
+    _plotConfig);
+
+  renderDemoTrajectory(label);
+}
+
+function renderDemoTrajectory(label){
+  const d=demoData[label];
+  const catN=d.cat_trajectory.map(p=>p.step);
+  const catSE=d.cat_trajectory.map(p=>p.se);
+  const linN=d.linear_trajectory.map(p=>p.step);
+  const linSE=d.linear_trajectory.map(p=>p.se);
+  const dark=document.body.classList.contains('dark');
+  const fg=dark?'#fff':'#000'; const grid=dark?'#333':'#ddd';
+  Plotly.newPlot('demo-trajectory-'+label,
+    [{x:catN,y:catSE,mode:'lines+markers',name:'Adaptive (CAT)',
+      line:{color:fg,width:2},marker:{size:6}},
+     {x:linN,y:linSE,mode:'lines+markers',name:'Linear (fixed order)',
+      line:{color:'#888',width:1.5,dash:'dash'},marker:{size:4,color:'#888'}}],
+    {paper_bgcolor:'rgba(0,0,0,0)',plot_bgcolor:'rgba(0,0,0,0)',
+     font:{color:fg},margin:{l:55,r:10,t:35,b:45},
+     title:`SE trajectory (true theta = ${d.true_theta.toFixed(1)})`,
+     xaxis:{title:'Items administered',color:fg,gridcolor:grid,zerolinecolor:grid,
+            dtick:2},
+     yaxis:{title:'Standard error of theta_hat',color:fg,gridcolor:grid,
+            zerolinecolor:grid,rangemode:'tozero'},
+     shapes:[{type:'line',xref:'paper',yref:'y',x0:0,x1:1,y0:0.30,y1:0.30,
+              line:{color:'#d62728',width:1,dash:'dot'}}],
+     annotations:[{xref:'paper',yref:'y',x:0.99,y:0.30,text:'SE target = 0.30',
+                   xanchor:'right',yanchor:'bottom',showarrow:false,
+                   font:{color:'#d62728',size:10}}]},
     _plotConfig);
 }
 
@@ -835,8 +938,19 @@ function setDemoTab(label, btn){
   section.querySelectorAll(':scope > .tab-panel').forEach(p=>p.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('demo-tab-'+label).classList.add('active');
-  // Re-render plots now that the container is visible (Plotly renders at 0x0 in display:none)
+  // The container is now visible. Re-render plots so they pick up the true
+  // width of the visible panel (Plotly creates 0x0 figures in display:none).
   renderDemoStep(label, demoState[label]);
+  demoRendered[label]=true;
+  // Force a resize pass on the next tick so Plotly recomputes dimensions
+  // against the now-laid-out container. Fixes lingering misalignment when
+  // switching from a narrower viewport or after a theme toggle.
+  requestAnimationFrame(()=>{
+    for(const divId of ['demo-icc-'+label, 'demo-iic-'+label, 'demo-trajectory-'+label]){
+      const el = document.getElementById(divId);
+      if(el && el._fullLayout) Plotly.Plots.resize(el);
+    }
+  });
 }
 
 // ── Top-level tabs (CAT / Demos / Overview) ────────────────────────────────

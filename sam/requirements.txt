@@ -3,5 +3,6 @@ pandas
 scipy
 girth
 factor_analyzer
+matplotlib
 plotly
 jinja2
