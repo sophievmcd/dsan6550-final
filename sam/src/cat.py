@@ -3,7 +3,9 @@ import pandas as pd
 from scipy.optimize import minimize_scalar
 
 # Run a simple CAT demo using calibrated 2PL parameters and information-based item selection.
-SE_THRESHOLD = 0.30
+# SE_THRESHOLD = 0.40 is appropriate for a low-stakes survey CAT with a 30-item
+# bank; high-stakes operational CATs typically use 0.30 with 5-10x the pool.
+SE_THRESHOLD = 0.40
 MAX_ITEMS = 20
 
 

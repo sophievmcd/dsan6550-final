@@ -196,7 +196,7 @@ tr:hover td{background:var(--accent-bg);}
 <ol>
   <li>Click <strong>Start Test</strong> button below.</li>
   <li>For each question, click option A or option B, whichever best reflects your view.</li>
-  <li>The test stops automatically when measurement precision is sufficient (SE &lt; 0.30) or after 20 items.</li>
+  <li>The test stops automatically when measurement precision is sufficient (SE &lt; 0.40) or after 20 items.</li>
   <li>Your final ideology estimate will appear at the end of the test.</li>
 </ol>
 <p style="margin-top:0.6rem;margin-bottom:0;">See the <strong>Overview</strong> tab for the construct, item bank, methodology, and insights.</p>
@@ -256,7 +256,7 @@ tr:hover td{background:var(--accent-bg);}
 <strong>Specifications &amp; what each panel shows</strong>
 <ul style="margin:0.4rem 0 0 1.4rem;">
   <li><strong>Progressive</strong> (true theta = -1.5): strongly progressive profile; the CAT should converge to a negative theta_hat.</li>
-  <li><strong>Moderate</strong> (true theta = 0.0): centrist profile; typically reaches SE &lt; 0.30 in the fewest items.</li>
+  <li><strong>Moderate</strong> (true theta = 0.0): centrist profile; typically reaches SE &lt; 0.40 in the fewest items.</li>
   <li><strong>Conservative</strong> (true theta = +1.5): strongly conservative profile; the CAT should converge to a positive theta_hat.</li>
 </ul>
 <p style="margin-top:0.6rem;margin-bottom:0;">Each demo's summary row lists true theta, final theta_hat, final SE, number of items administered, and stop reason. Use <em>Prev</em> / <em>Next</em> to step through each item and see the item stem, response, updated theta_hat and SE, ICC, IIC, and the selection justification.</p>
@@ -450,7 +450,7 @@ tr:hover td{background:var(--accent-bg);}
 <p>Theta is estimated by maximum likelihood using the Brent's method. When all responses so far are identical (e.g., all B or all A), MLE diverges; in that case, Expected A Posteriori estimation with a N(0, 1) prior is used as a fallback. The standard error is SE = 1 / sqrt(sum of item Fisher information at theta_hat).</p>
 
 <h3>Stop rule</h3>
-<p>Testing stops when SE &lt; 0.30 (measurement precision achieved) or when 20 items have been administered (maximum length), whichever comes first.</p>
+<p>Testing stops when SE &lt; 0.40 (measurement precision achieved) or when 20 items have been administered (maximum length), whichever comes first. SE &lt; 0.40 is an appropriate target for a low-stakes survey CAT with a 30-item bank; high-stakes operational CATs typically tighten this to SE &lt; 0.30 with 5-10&times; the pool depth.</p>
 </section>
 
 <!-- 7. Conclusion -->
@@ -460,7 +460,7 @@ tr:hover td{background:var(--accent-bg);}
 <ul style="margin-left:1.5rem;margin-bottom:0.8rem;">
   <li><strong>Circular validation by construction.</strong> Responses were generated from the 2PL model and then fit with the same 2PL model. The high parameter-recovery correlations (r &gt; 0.95 for both a and b) should be read as simulation-fidelity evidence, not as evidence that the items behave as 2PL on real human respondents.</li>
   <li><strong>True parameters.</strong> The "true" a and b values were assigned by content review of each item (informed priors, not empirical values). The <code>disc_label</code> column (High / Moderate / Low) is metadata that guided authoring, not a calibrated discrimination.</li>
-  <li><strong>Pool depth.</strong> The CAT draws from 30 items with a max test length of 20, giving a 1.5:1 pool-to-length ratio. Operational CATs typically deploy with 5-10:1 ratios. This cap is why all three demo respondents administer all 20 items without crossing the SE &lt; 0.30 stop threshold. The Adaptive vs. Linear trajectory plots show the CAT still gains precision on every item, but the target is not reachable within the cap.</li>
+  <li><strong>Pool depth and stop-threshold choice.</strong> The CAT draws from 30 items with a max test length of 20 (a 1.5:1 pool-to-length ratio vs. the 5-10:1 ratios used operationally). The SE target is set to 0.40, appropriate for a low-stakes survey CAT at this pool size. A tighter threshold (e.g., SE &lt; 0.30, conventional for high-stakes CATs) is not reachable within 20 items given the bank's average discrimination; it would require roughly doubling the total test information, which means either a larger pool or systematically higher-discrimination items. The Adaptive vs. Linear trajectory plots show the CAT still gains precision on every step regardless of the target.</li>
   <li><strong>Three low-discrimination items.</strong> Items 19 (Rural broadband access), 20 (Public library expansion), and 30 (Trade-displaced worker aid) have a<sub>true</sub> &le; 0.6 and item-total r &lt; 0.20. They contribute minimal Fisher information and rarely appear in adaptive sessions. In a production bank they would be flagged for revision or removal.</li>
   <li><strong>Target population is asserted, not piloted.</strong> The construct and the intended audience are theoretical framings. No human pilot has been administered, so construct and content validity remain argued.</li>
   <li><strong>Single dimension.</strong> Economic ideology is multidimensional in practice (e.g., fiscal vs. regulatory preferences). The first-eigenvalue ratio supports the unidimensional 2PL assumption for this simulated data, but the same analysis on real responses could reveal additional factors.</li>
@@ -478,7 +478,7 @@ tr:hover td{background:var(--accent-bg);}
 
 <h3>Suggested improvements</h3>
 <ul style="margin-left:1.5rem;margin-bottom:0.8rem;">
-  <li>Expand the bank to 60-120 items, concentrating new items at |theta| &gt; 1 so extreme respondents can reach SE &lt; 0.30 within the cap.</li>
+  <li>Expand the bank to 60-120 items, concentrating new items at |theta| &gt; 1 so extreme respondents can reach a tighter SE target (e.g., SE &lt; 0.40) within the cap.</li>
   <li>Retire or rewrite items 19, 20, and 30 on the basis of low a and low item-total r.</li>
   <li>Run a small human pilot to obtain real responses and refit the 2PL. Report recovery against the pilot-calibrated parameters as a validity check.</li>
   <li>Consider exposure control (e.g., Sympson-Hetter) so high-information items at theta ~ 0 are not repeatedly selected in large-scale administration.</li>
@@ -769,7 +769,7 @@ function catAnswer(resp){
   renderCatPlots(item);
 
   setTimeout(()=>{
-    if(est.se<0.30 || n>=20){
+    if(est.se<0.40 || n>=20){
       catFinish(est,n);
     } else {
       const next=selectNext(est.theta, catState.administered);
@@ -916,9 +916,9 @@ function renderDemoTrajectory(label){
             dtick:2},
      yaxis:{title:'Standard error of theta_hat',color:fg,gridcolor:grid,
             zerolinecolor:grid,rangemode:'tozero'},
-     shapes:[{type:'line',xref:'paper',yref:'y',x0:0,x1:1,y0:0.30,y1:0.30,
+     shapes:[{type:'line',xref:'paper',yref:'y',x0:0,x1:1,y0:0.40,y1:0.40,
               line:{color:'#d62728',width:1,dash:'dot'}}],
-     annotations:[{xref:'paper',yref:'y',x:0.99,y:0.30,text:'SE target = 0.30',
+     annotations:[{xref:'paper',yref:'y',x:0.99,y:0.40,text:'SE target = 0.40',
                    xanchor:'right',yanchor:'bottom',showarrow:false,
                    font:{color:'#d62728',size:10}}]},
     _plotConfig);
