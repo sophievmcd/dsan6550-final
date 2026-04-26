@@ -301,13 +301,35 @@ tr:hover td{background:var(--accent-bg);}
 <!-- 1. Overview -->
 <section id="overview">
 <h1>Economic Policy Ideology CAT</h1>
-<p>This report documents a complete Computerized Adaptive Test (CAT) pipeline built around a 30 item bank measuring a single latent dimension of <strong>economic policy ideology</strong> (progressive &harr; conservative). Items were generated with Claude assistance and span six subdomains: taxation, government spending, labor markets, healthcare, corporate regulation, and trade.</p>
+<p>This report documents a complete Computerized Adaptive Test (CAT) pipeline built around a 30 item bank measuring a single latent dimension of <strong>economic policy ideology</strong> (progressive &harr; conservative). Items were generated using generative AI and span six subdomains: taxation, government spending, labor markets, healthcare, corporate regulation, and trade.</p>
+
+<h2>Item Generation</h2>
+<p>This study used generative AI to build the item bank. The following prompt was submitted through the chatbot function of Claude Sonnet 4.6, Chat-GPT 5.4, and Gemini 3. The authors compared the outputs of each, and selected the Claude-generated item bank because it seemed to best capture the range of information and included "high," "medium," and "low" discrimination labels which were helpful for generating responses.</p>
+
+<div style="background-color: #f0f4ff; border-left: 4px solid #808bb5; padding: 12px 16px; border-radius: 4px;">
+  <strong>Prompt:</strong>
+  <p>Please generate an item bank for an evaluative survey targeted to measure the examinee's ideological stance on economic policy, on the continuum from lower theta representing more economically progressive/pro government intervention and a higher theta representing more economically conservative/pro market/lower government intervention. Do this based on the following rules:</p>
+  <ul style="padding-left: 24px;">
+    <li>Generate 30 items (30 total questions)</li>
+    <li>The items should be binary-scored policy preference items (so 2PL or 3PL Item Response Theory approaches work) — only two possible responses.</li>
+    <li>The items should not be restricted to simply "Agree" vs. "Disagree" but should let the examinee choose between situations.</li>
+    <li>For each question, one answer should represent the economically conservative perspective and the other should represent the economically progressive perspective.</li>
+    <li>The questions should vary in terms of how strongly they represent a perspective. For example, some questions should very strongly indicate a more extreme ideological stance in either direction, while some should be more middle of the road. In other words, some questions should discriminate more highly between the two sides of the continuum whereas others may have some overlap.</li>
+    <li>The questions should not require extensive knowledge of economic policy to answer. In the case where jargon/policy terms are used, they should be defined in the question.</li>
+    <li>Each scenario presented for items should be no longer than two sentences to allow for easy interpretation by the examinee.</li>
+    <li>The items should vary across sub-categories of economic policy — including taxation and wealth inequality, government spending and debt, labor markets and worker rights, healthcare and public services, corporate regulation, and trade and economic nationalism.</li>
+    <li>The items should not be targeted at persuasion or manipulation towards either perspective, but should be phrased neutrally.</li>
+  </ul>
+</div>
 
 <h2>Why 2PL?</h2>
 <p>Each item presents two substantively grounded policy positions (option A = progressive, option B = conservative). Because neither option is "correct," there is no guessing parameter, making the 3PL model inefficient. The two-parameter logistic (2PL) model captures variation in both the <em>location</em> (ideological threshold, parameter b) and <em>slope</em> (discriminating power, parameter a) of each item's characteristic curve.</p>
 
 <h2>Target population</h2>
-<p>English-speaking adults with an opinion on national economic policy. The latent trait theta is standardized so that theta = 0 corresponds to the ideological center; negative values indicate progressive orientation and positive values indicate conservative orientation.</p>
+<p>The target population for this CAT is English-speaking adults with an opinion on national economic policy. The latent trait theta is standardized so that theta = 0 corresponds to the ideological center; negative values indicate progressive orientation and positive values indicate conservative orientation.</p>
+
+<h2>Response Simulation</h2>
+<p>To assess the CAT, the authors generated 500 sample responses by fixing the difficulty and discrimination of each item based on content review. </p>
 </section>
 
 <!-- 2. Item Bank -->
