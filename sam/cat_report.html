@@ -933,7 +933,6 @@ tr:hover td{background:var(--accent-bg);}
   <li><strong>Three low-discrimination items.</strong> Items 19 (Rural broadband access), 20 (Public library expansion), and 30 (Trade-displaced worker aid) have a<sub>true</sub> &le; 0.6 and item-total r &lt; 0.20. They contribute minimal Fisher information and rarely appear in adaptive sessions. In a production bank they would be flagged for revision or removal.</li>
   <li><strong>Target population is asserted, not piloted.</strong> The construct and the intended audience are theoretical framings. No human pilot has been administered, so construct and content validity remain argued.</li>
   <li><strong>Single dimension.</strong> Economic ideology is multidimensional in practice (e.g., fiscal vs. regulatory preferences). The first-eigenvalue ratio supports the unidimensional 2PL assumption for this simulated data, but the same analysis on real responses could reveal additional factors.</li>
-  <li><strong>Theta draw shape.</strong> Respondents' theta was drawn from a t(df=10) distribution rescaled to unit variance to improve tail coverage. The mismatch is small and does not visibly perturb recovery, but a full demonstration would use N(0, 1).</li>
   <li><strong>Binary forced choice.</strong> This format eliminates biases but limits each item to one bit of information and may frustrate respondents holding nuanced positions.</li>
   <li><strong>MLE instability on uniform responses.</strong> Early in the CAT with all-same responses, the MLE diverges. An EAP fallback with an N(0, 1) prior keeps the theta estimate bounded but introduces prior dependence until mixed responses are observed.</li>
 </ul>
@@ -941,7 +940,6 @@ tr:hover td{background:var(--accent-bg);}
 <h3>Challenges encountered</h3>
 <ul style="margin-left:1.5rem;margin-bottom:0.8rem;">
   <li>Selecting an item-fit statistic that is both interpretable and correct. Averaging raw standardized residuals produces values near zero for any item (positive and negative residuals cancel), so we moved to the information-weighted mean-square (infit MSQ) with the standard 0.7-1.3 band.</li>
-  <li>Packaging the entire pipeline output into a single self-contained HTML meant inlining every Plotly figure, the full calibrated parameter table, and precomputed demo traces, making the file &gt; 1 MB but fully portable and server-less.</li>
   <li>Demonstrating "adaptive" behavior visibly when the SE target is not reachable within the pool cap: the Adaptive vs. Linear trajectory plot was added so the efficiency advantage can be visible.</li>
 </ul>
 
