@@ -1,10 +1,9 @@
 # Computerized Adaptive Assessment for Latent Economic Policy Ideology
 
-**Authors:** Isabelle Coddington, Sophie McDowall, and Samuel Villareal
-
+**Authors:** Isabella Coddington, Sophie McDowall, and Samuel Villareal   
 Georgetown University M.S. Data Science and Analytics
 
-DSAN 6550 Spring 2026
+
 
 Final project for the AI Measurement class (DSAN-6550, Spring 2026): a
 Computerized Adaptive Test (CAT) for economic policy ideology, assembled
